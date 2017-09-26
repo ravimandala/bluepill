@@ -31,9 +31,7 @@ static const NSString * const kPassed = @"passed";
 @property (nonatomic, strong) BPWriter *log;
 
 @property (nonatomic, strong) NSString *line;
-@property (nonatomic, strong) BPTestSuiteLogEntry *root;
-@property (nonatomic, assign) BPTestSuiteLogEntry *current;
-@property (nonatomic, assign) BPTestCaseLogEntry *currentTest;
+
 
 // This variable exists because the name of the root node can change between
 // The first run and a second run after a crash.
@@ -456,6 +454,9 @@ static const NSString * const kPassed = @"passed";
             }
             logEntry = self.currentTest;
         } else {
+            if (!self.current) {
+                self.current = [[BPTestSuiteLogEntry alloc] init];
+            }
             if (!self.current.log) {
                 self.current.log = @"";
             }

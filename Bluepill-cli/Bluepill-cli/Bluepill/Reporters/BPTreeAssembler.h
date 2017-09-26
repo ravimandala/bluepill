@@ -15,8 +15,8 @@
 @interface BPTreeAssembler : NSObject
 
 @property (nonatomic, strong) BPTestSuiteLogEntry *root;
-@property (nonatomic, assign) BPTestSuiteLogEntry *current;
-@property (nonatomic, assign) BPTestCaseLogEntry *currentTest;
+@property (nonatomic, strong) BPTestSuiteLogEntry *current;
+@property (nonatomic, strong) BPTestCaseLogEntry *currentTest;
 
 + (instancetype)sharedInstance;
 
