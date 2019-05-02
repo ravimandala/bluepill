@@ -25,6 +25,8 @@ steps:
       echo "Your system doesn't contain latest runtime: iOS $default_runtime"
       exit -1
     }
+  workingDirectory: '$(Agent.SourcesDirectory)'
+  failOnStderr: 'true'
   displayName: 'Runtime check'
 
 - task: Xcode@5
@@ -43,6 +45,7 @@ steps:
   inputs:
     actions: test
     configuration: 'Debug'
+    sdk: 'macosx'
     xcWorkspacePath: $(workspace)
     scheme: 'bp-tests'
     xcodeVersion: $(xcodeVersion)
@@ -54,6 +57,7 @@ steps:
   inputs:
     actions: test
     configuration: 'Debug'
+    sdk: 'macosx'
     xcWorkspacePath: $(workspace)
     scheme: 'bluepill-tests'
     xcodeVersion: $(xcodeVersion)
@@ -64,6 +68,7 @@ steps:
   displayName: 'Xcode build release'
   inputs:
     configuration: 'Release'
+    sdk: 'macosx'
     xcWorkspacePath: $(workspace)
     scheme: 'bluepill'
     xcodeVersion: $(xcodeVersion)
