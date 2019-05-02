@@ -24,7 +24,7 @@ steps:
   displayName: 'Build'
 
 - script: |
-    ./scripts/bluepill.sh Test
+    ./scripts/bluepill.sh test
   displayName: 'Test'
 
 - script: |
