@@ -16,7 +16,7 @@ pool:
 variables:
   workspace: 'Bluepill.xcworkspace'
   scheme: 'bluepill'
-  xcodeVersion: '10.2'
+  xcodeVersion: '10'
 
 steps:
 - task: Xcode@5
