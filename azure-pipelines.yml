@@ -28,6 +28,7 @@ steps:
     xcWorkspacePath: $(workspace)
     scheme: $(scheme)
     xcodeVersion: $(xcodeVersion)
+    xcodeDeveloperDir: $(xcodeDeveloperDir)
 
 - task: Xcode@5
   displayName: 'Xcode test'
@@ -38,6 +39,7 @@ steps:
     xcWorkspacePath: $(workspace)
     scheme: $(scheme)
     xcodeVersion: $(xcodeVersion)
+    xcodeDeveloperDir: $(xcodeDeveloperDir)
     destinationPlatformOption: 'iOS'
     destinationSimulators: 'iPhone X'
     publishJUnitResults: true
