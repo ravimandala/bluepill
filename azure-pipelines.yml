@@ -15,31 +15,56 @@ pool:
 
 variables:
   workspace: 'Bluepill.xcworkspace'
-  scheme: 'bluepill'
   xcodeVersion: 'specifyPath'
   xcodeDeveloperDir: '/Applications/Xcode_10.2.app/Contents/Developer'
 
 steps:
+- script: |
+  default_runtime=`grep BP_DEFAULT_RUNTIME ./Source/Shared/BPConstants.h | sed 's/.*BP_DEFAULT_RUNTIME *//;s/"//g;s/ *$//g;'`
+  xcrun simctl list runtimes | grep -q "$default_runtime" || {
+    echo "Your system doesn't contain latest runtime: iOS $default_runtime"
+    exit -1
+  }
+  displayName: 'Runtime check'
+
 - task: Xcode@5
-  displayName: 'Xcode build'
+  displayName: 'Xcode build SampleApp for tests'
   inputs:
-    configuration: 'Release'
-    sdk: 'macosx'
+    actions: build-for-testing
+    configuration: 'Debug'
+    sdk: 'iphonesimulator'
     xcWorkspacePath: $(workspace)
-    scheme: $(scheme)
+    scheme: 'BPSampleApp'
     xcodeVersion: $(xcodeVersion)
     xcodeDeveloperDir: $(xcodeDeveloperDir)
 
 - task: Xcode@5
-  displayName: 'Xcode test'
+  displayName: 'Xcode instance tests'
   inputs:
     actions: test
     configuration: 'Debug'
-    sdk: 'macosx'
     xcWorkspacePath: $(workspace)
-    scheme: $(scheme)
+    scheme: 'bp-tests'
     xcodeVersion: $(xcodeVersion)
     xcodeDeveloperDir: $(xcodeDeveloperDir)
-    destinationPlatformOption: 'iOS'
-    destinationSimulators: 'iPhone X'
     publishJUnitResults: true
+
+- task: Xcode@5
+  displayName: 'Xcode runner tests'
+  inputs:
+    actions: test
+    configuration: 'Debug'
+    xcWorkspacePath: $(workspace)
+    scheme: 'bluepill-tests'
+    xcodeVersion: $(xcodeVersion)
+    xcodeDeveloperDir: $(xcodeDeveloperDir)
+    publishJUnitResults: true
+
+- task: Xcode@5
+  displayName: 'Xcode build release'
+  inputs:
+    configuration: 'Release'
+    xcWorkspacePath: $(workspace)
+    scheme: 'bluepill'
+    xcodeVersion: $(xcodeVersion)
+    xcodeDeveloperDir: $(xcodeDeveloperDir)
