@@ -20,6 +20,15 @@ variables:
 
 steps:
 - script: |
+    ./scripts/bluepill.sh build
+  displayName: 'Build'
+
+- script: |
+    ./scripts/bluepill.sh Test
+  displayName: 'Test'
+
+steps:
+- script: |
     default_runtime=`grep BP_DEFAULT_RUNTIME ./bp/src/BPConstants.h | sed 's/.*BP_DEFAULT_RUNTIME *//;s/"//g;s/ *$//g;'`
     xcrun simctl list runtimes | grep -q "$default_runtime" || {
       echo "Your system doesn't contain latest runtime: iOS $default_runtime"
@@ -28,6 +37,7 @@ steps:
   workingDirectory: $(Build.SourcesDirectory)
   failOnStderr: 'true'
   displayName: 'Runtime check'
+  enabled: 'false'
 
 - task: Xcode@5
   displayName: 'Xcode build SampleApp for tests'
@@ -39,6 +49,7 @@ steps:
     scheme: 'BPSampleApp'
     xcodeVersion: $(xcodeVersion)
     xcodeDeveloperDir: $(xcodeDeveloperDir)
+  enabled: 'false'
 
 - task: Xcode@5
   displayName: 'Xcode instance tests'
@@ -51,6 +62,7 @@ steps:
     xcodeVersion: $(xcodeVersion)
     xcodeDeveloperDir: $(xcodeDeveloperDir)
     publishJUnitResults: true
+  enabled: 'false'
 
 - task: Xcode@5
   displayName: 'Xcode runner tests'
@@ -63,6 +75,7 @@ steps:
     xcodeVersion: $(xcodeVersion)
     xcodeDeveloperDir: $(xcodeDeveloperDir)
     publishJUnitResults: true
+  enabled: 'false'
 
 - task: Xcode@5
   displayName: 'Xcode build release'
@@ -73,3 +86,4 @@ steps:
     scheme: 'bluepill'
     xcodeVersion: $(xcodeVersion)
     xcodeDeveloperDir: $(xcodeDeveloperDir)
+  enabled: 'false'
