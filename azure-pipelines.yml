@@ -27,7 +27,7 @@ steps:
       echo "Your system doesn't contain latest runtime: iOS $default_runtime"
       exit -1
     }
-  workingDirectory: $(Agent.SourcesDirectory)
+  workingDirectory: $(Build.SourcesDirectory)
   failOnStderr: 'true'
   displayName: 'Runtime check'
 
