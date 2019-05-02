@@ -27,7 +27,6 @@ steps:
     ./scripts/bluepill.sh Test
   displayName: 'Test'
 
-steps:
 - script: |
     default_runtime=`grep BP_DEFAULT_RUNTIME ./bp/src/BPConstants.h | sed 's/.*BP_DEFAULT_RUNTIME *//;s/"//g;s/ *$//g;'`
     xcrun simctl list runtimes | grep -q "$default_runtime" || {
