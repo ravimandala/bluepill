@@ -16,14 +16,15 @@ pool:
 variables:
   workspace: 'Bluepill.xcworkspace'
   scheme: 'bluepill'
-  xcodeVersion: '10'
+  xcodeVersion: 'specifyPath'
+  xcodeDeveloperDir: '/Applications/Xcode_10.2.app/Contents/Developer'
 
 steps:
 - task: Xcode@5
   displayName: 'Xcode build'
   inputs:
     configuration: 'Release'
-    sdk: 'iphoneos'
+    sdk: 'macosx'
     xcWorkspacePath: $(workspace)
     scheme: $(scheme)
     xcodeVersion: $(xcodeVersion)
@@ -33,7 +34,7 @@ steps:
   inputs:
     actions: test
     configuration: 'Debug'
-    sdk: 'iphonesimulator'
+    sdk: 'macosx'
     xcWorkspacePath: $(workspace)
     scheme: $(scheme)
     xcodeVersion: $(xcodeVersion)
