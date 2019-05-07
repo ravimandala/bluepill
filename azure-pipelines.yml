@@ -79,9 +79,3 @@ variables:
     xcodeDeveloperDir: $(xcodeDeveloperDir)
     useXcpretty: 'true'
   enabled: 'true'
-
-- script: 'ls -alR'
-
-- task: PublishBuildArtifacts@1
-  inputs:
-    pathtoPublish: '$(Build.ArtifactStagingDirectory)'
