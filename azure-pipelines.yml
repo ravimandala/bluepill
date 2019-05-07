@@ -80,10 +80,7 @@ variables:
     useXcpretty: 'true'
   enabled: 'true'
 
-- task: CopyFiles@2
-  inputs:
-    contents: '**/bp'
-    targetFolder: '$(Build.artifactStagingDirectory)'
+- script: 'ls -alR'
 
 - task: PublishBuildArtifacts@1
   inputs:
