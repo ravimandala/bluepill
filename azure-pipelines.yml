@@ -17,6 +17,7 @@ variables:
   workspace: 'Bluepill.xcworkspace'
   xcodeVersion: 'specifyPath'
   xcodeDeveloperDir: '/Applications/Xcode_10.2.app/Contents/Developer'
+  NSUnbufferedIO:
 
 steps:
 - script: |
@@ -50,6 +51,7 @@ steps:
     scheme: 'BPSampleApp'
     xcodeVersion: $(xcodeVersion)
     xcodeDeveloperDir: $(xcodeDeveloperDir)
+    useXcpretty: 'true'
   enabled: 'true'
 
 - task: Xcode@5
@@ -63,6 +65,7 @@ steps:
     xcodeVersion: $(xcodeVersion)
     xcodeDeveloperDir: $(xcodeDeveloperDir)
     publishJUnitResults: true
+    useXcpretty: 'true'
   enabled: 'true'
 
 - task: Xcode@5
@@ -76,6 +79,7 @@ steps:
     xcodeVersion: $(xcodeVersion)
     xcodeDeveloperDir: $(xcodeDeveloperDir)
     publishJUnitResults: true
+    useXcpretty: 'true'
   enabled: 'true'
 
 - task: Xcode@5
@@ -87,4 +91,5 @@ steps:
     scheme: 'bluepill'
     xcodeVersion: $(xcodeVersion)
     xcodeDeveloperDir: $(xcodeDeveloperDir)
+    useXcpretty: 'true'
   enabled: 'true'
