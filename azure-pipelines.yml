@@ -83,10 +83,10 @@ variables:
 - task: CopyFiles@2
   inputs:
     contents: |
-      **/bp
-      **/bluepill
+      '**/bp'
+      '**/bluepill'
     targetFolder: '$(build.artifactStagingDirectory)'
 
 - task: PublishBuildArtifacts@1
   inputs:
-    pathtoPublish: $(Build.ArtifactStagingDirectory)
+    pathtoPublish: '$(Build.ArtifactStagingDirectory)'
