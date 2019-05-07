@@ -17,73 +17,18 @@ variables:
   xcodeDeveloperDir: '/Applications/Xcode_10.2.app/Contents/Developer'
 
 steps:
-- script: |
-    default_runtime=`grep BP_DEFAULT_RUNTIME ./bp/src/BPConstants.h | sed 's/.*BP_DEFAULT_RUNTIME *//;s/"//g;s/ *$//g;'`
-    xcrun simctl list runtimes | grep -q "$default_runtime" || {
-      echo "Your system doesn't contain latest runtime: iOS $default_runtime"
-      exit -1
-    }
-  workingDirectory: $(Build.SourcesDirectory)
-  failOnStderr: 'true'
-  displayName: 'Runtime check'
-  enabled: 'true'
 
-- task: Xcode@5
-  displayName: 'Xcode build SampleApp for tests'
-  inputs:
-    actions: build-for-testing
-    configuration: 'Debug'
-    sdk: 'iphonesimulator'
-    xcWorkspacePath: $(workspace)
-    scheme: 'BPSampleApp'
-    xcodeVersion: $(xcodeVersion)
-    xcodeDeveloperDir: $(xcodeDeveloperDir)
-    useXcpretty: 'true'
-  enabled: 'true'
+- script: ./scripts/bluepill.sh build
+  displayName: 'Build BluePill'
 
-- task: Xcode@5
-  displayName: 'Xcode instance tests'
-  inputs:
-    actions: test
-    configuration: 'Debug'
-    sdk: 'macosx'
-    xcWorkspacePath: $(workspace)
-    scheme: 'bp-tests'
-    xcodeVersion: $(xcodeVersion)
-    xcodeDeveloperDir: $(xcodeDeveloperDir)
-    publishJUnitResults: true
-    useXcpretty: 'true'
-  enabled: 'false'
-
-- task: Xcode@5
-  displayName: 'Xcode runner tests'
-  inputs:
-    actions: test
-    configuration: 'Debug'
-    sdk: 'macosx'
-    xcWorkspacePath: $(workspace)
-    scheme: 'bluepill-tests'
-    xcodeVersion: $(xcodeVersion)
-    xcodeDeveloperDir: $(xcodeDeveloperDir)
-    publishJUnitResults: true
-    useXcpretty: 'true'
-  enabled: 'false'
-
-- task: Xcode@5
-  displayName: 'Xcode build release'
-  inputs:
-    configuration: 'Release'
-    sdk: 'macosx'
-    xcWorkspacePath: $(workspace)
-    scheme: 'bluepill'
-    xcodeVersion: $(xcodeVersion)
-    xcodeDeveloperDir: $(xcodeDeveloperDir)
-    useXcpretty: 'true'
-  enabled: 'true'
+- script: ./scripts/bluepill.sh test
+  displayName: 'Run BluePill tests'
 
 - task: CopyFiles@2
   inputs:
-    contents: '**/bp'
+    contents: |
+      build/**/bp
+      build/**/bluepill
     targetFolder: '$(Build.artifactStagingDirectory)'
 
 - script: 'ls -alR'
