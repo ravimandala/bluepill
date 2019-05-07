@@ -1,5 +1,3 @@
-# TODO: integrate logic from scripts/bluepill.sh
-
 trigger:
 - master
 
@@ -17,18 +15,6 @@ variables:
   workspace: 'Bluepill.xcworkspace'
   xcodeVersion: 'specifyPath'
   xcodeDeveloperDir: '/Applications/Xcode_10.2.app/Contents/Developer'
-  NSUnbufferedIO:
-
-steps:
-- script: |
-    ./scripts/bluepill.sh build
-  displayName: 'Build'
-  enabled: 'false'
-
-- script: |
-    ./scripts/bluepill.sh test
-  displayName: 'Test'
-  enabled: 'false'
 
 - script: |
     default_runtime=`grep BP_DEFAULT_RUNTIME ./bp/src/BPConstants.h | sed 's/.*BP_DEFAULT_RUNTIME *//;s/"//g;s/ *$//g;'`
@@ -66,7 +52,7 @@ steps:
     xcodeDeveloperDir: $(xcodeDeveloperDir)
     publishJUnitResults: true
     useXcpretty: 'true'
-  enabled: 'true'
+  enabled: 'false'
 
 - task: Xcode@5
   displayName: 'Xcode runner tests'
@@ -80,7 +66,7 @@ steps:
     xcodeDeveloperDir: $(xcodeDeveloperDir)
     publishJUnitResults: true
     useXcpretty: 'true'
-  enabled: 'true'
+  enabled: 'false'
 
 - task: Xcode@5
   displayName: 'Xcode build release'
@@ -93,3 +79,14 @@ steps:
     xcodeDeveloperDir: $(xcodeDeveloperDir)
     useXcpretty: 'true'
   enabled: 'true'
+
+- task: CopyFiles@2
+  inputs:
+    contents: |
+      **/bp
+      **/bluepill
+    targetFolder: '$(build.artifactStagingDirectory)'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathtoPublish: $(Build.ArtifactStagingDirectory)
