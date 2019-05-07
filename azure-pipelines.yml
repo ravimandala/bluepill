@@ -16,6 +16,7 @@ variables:
   xcodeVersion: 'specifyPath'
   xcodeDeveloperDir: '/Applications/Xcode_10.2.app/Contents/Developer'
 
+steps:
 - script: |
     default_runtime=`grep BP_DEFAULT_RUNTIME ./bp/src/BPConstants.h | sed 's/.*BP_DEFAULT_RUNTIME *//;s/"//g;s/ *$//g;'`
     xcrun simctl list runtimes | grep -q "$default_runtime" || {
@@ -79,3 +80,14 @@ variables:
     xcodeDeveloperDir: $(xcodeDeveloperDir)
     useXcpretty: 'true'
   enabled: 'true'
+
+- task: CopyFiles@2
+  inputs:
+    contents: '**/bp'
+    targetFolder: '$(Build.artifactStagingDirectory)'
+
+- script: 'ls -alR'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathtoPublish: '$(Build.ArtifactStagingDirectory)'
