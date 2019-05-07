@@ -11,11 +11,6 @@ pool:
   vmImage: macOS-10.14
   demands: xcode
 
-variables:
-  workspace: 'Bluepill.xcworkspace'
-  xcodeVersion: 'specifyPath'
-  xcodeDeveloperDir: '/Applications/Xcode_10.2.app/Contents/Developer'
-
 steps:
 
 - script: ./scripts/bluepill.sh build
@@ -27,12 +22,8 @@ steps:
 
 - task: CopyFiles@2
   inputs:
-    contents: |
-      build/**/bp
-      build/**/bluepill
+    contents: 'build/**/Bluepill-*/'
     targetFolder: '$(Build.artifactStagingDirectory)'
-
-- script: 'ls -alR'
 
 - task: PublishBuildArtifacts@1
   inputs:
