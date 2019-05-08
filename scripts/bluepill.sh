@@ -9,7 +9,7 @@
 
 #!/bin/bash
 
-XCPRETTY=xcpretty
+XCPRETTY=xcpretty --report junit --report html
 command -v $XCPRETTY >/dev/null 2>&1 || {
         XCPRETTY=cat
 }
@@ -33,35 +33,9 @@ export NSUnbufferedIO
 
 # If BPBuildScript is set to YES, it will disable verbose output in `bp`
 BPBuildScript=YES
-
-# Set it to NO if we're on Travis
-# Also turn off XCPRETTY
-if [ "$TRAVIS" == "true" ] || [ "$VERBOSE" == "1" ]
-then
-    BPBuildScript=NO
-    XCPRETTY=cat
-fi
-
 export BPBuildScript
 
 mkdir -p build/
-
-test_runtime()
-{
-  # Test that we have a valid runtime.
-
-  default_runtime=`grep BP_DEFAULT_RUNTIME ./Source/Shared/BPConstants.h | sed 's/.*BP_DEFAULT_RUNTIME *//;s/"//g;s/ *$//g;'`
-  xcrun simctl list runtimes | grep -q "$default_runtime" || {
-    echo "Your system doesn't contain latest runtime: iOS $default_runtime"
-    exit -1
-  }
-}
-
-simulator_cleanup()
-{
-  echo "Clean up simulators"
-  xcrun simctl list | grep BP | sed 's/).*$//g;s/^.*(//g;' | while read x; do xcrun simctl shutdown $x >/dev/null; xcrun simctl delete $x >/dev/null; done
-}
 
 bluepill_build()
 {
@@ -147,9 +121,7 @@ bluepill_verbose_tests()
 # The simulator clean up is to workaound a Xcode10 beta5 bug(CircleCI is still using beta5)
 bluepill_test()
 {
-  simulator_cleanup
   bluepill_instance_tests
-  simulator_cleanup
   bluepill_runner_tests
 }
 
