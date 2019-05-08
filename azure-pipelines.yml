@@ -18,7 +18,6 @@ jobs:
     displayName: 'Build BluePill'
   - script: ./scripts/bluepill.sh test
     displayName: 'Run BluePill tests'
-    enabled: 'false'
   - task: CopyFiles@2
     inputs:
       contents: 'build/Bluepill-*/**'
