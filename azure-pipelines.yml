@@ -11,20 +11,29 @@ pool:
   vmImage: macOS-10.14
   demands: xcode
 
-steps:
+jobs:
+- job: 'Xcode builds and tests'
+  steps:
+  - script: ./scripts/bluepill.sh build
+    displayName: 'Build BluePill'
 
-- script: ./scripts/bluepill.sh build
-  displayName: 'Build BluePill'
+  - script: ./scripts/bluepill.sh test
+    displayName: 'Run BluePill tests'
+    enabled: 'false'
 
-- script: ./scripts/bluepill.sh test
-  displayName: 'Run BluePill tests'
-  enabled: 'false'
+  - task: CopyFiles@2
+    inputs:
+      contents: 'build/Bluepill-*/**'
+      targetFolder: '$(Build.artifactStagingDirectory)'
 
-- task: CopyFiles@2
-  inputs:
-    contents: 'build/**/Bluepill-*/'
-    targetFolder: '$(Build.artifactStagingDirectory)'
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathtoPublish: '$(Build.ArtifactStagingDirectory)'
 
-- task: PublishBuildArtifacts@1
-  inputs:
-    pathtoPublish: '$(Build.ArtifactStagingDirectory)'
+- job: 'Bazel build'
+  steps:
+  - script: 'brew install bazel'
+    displayName: 'Install Bazel'
+  
+  - script: 'bazel build //bluepill:bluepill'
+    displayName: 'Bazel build'
