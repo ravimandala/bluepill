@@ -18,6 +18,12 @@ jobs:
     displayName: 'Build BluePill'
   - script: ./scripts/bluepill.sh test
     displayName: 'Run BluePill tests'
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFormat: 'JUnit'
+      testResultsFiles: 'build/reports/*.xml' 
+      mergeTestResults: false
+      failTaskOnFailedTests: true
   - task: CopyFiles@2
     inputs:
       contents: 'build/**/*.zip'
