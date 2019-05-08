@@ -29,11 +29,3 @@ jobs:
   - task: PublishBuildArtifacts@1
     inputs:
       pathtoPublish: '$(Build.ArtifactStagingDirectory)'
-
-- job: 'Bazel build'
-  steps:
-  - script: 'brew install bazel'
-    displayName: 'Install Bazel'
-  
-  - script: 'bazel build //bluepill:bluepill'
-    displayName: 'Bazel build'
