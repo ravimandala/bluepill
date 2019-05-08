@@ -9,7 +9,7 @@
 
 #!/bin/bash
 
-XCPRETTY=xcpretty --report junit --report html
+XCPRETTY='xcpretty --report junit'
 command -v $XCPRETTY >/dev/null 2>&1 || {
         XCPRETTY=cat
 }
@@ -91,7 +91,7 @@ bluepill_instance_tests()
   xcodebuild test \
     -workspace Bluepill.xcworkspace \
     -scheme bp-tests \
-    -derivedDataPath "build/" 2>&1 | tee result.txt | $XCPRETTY
+    -derivedDataPath "build/" 2>&1 | tee result.txt | $XCPRETTY --output build/reports/instance.xml
 
   if ! grep '\*\* TEST SUCCEEDED \*\*' result.txt; then
     echo 'Test failed'
@@ -104,7 +104,7 @@ bluepill_runner_tests()
   xcodebuild test \
     -workspace Bluepill.xcworkspace \
     -scheme bluepill-tests \
-    -derivedDataPath "build/" 2>&1 | tee result.txt | $XCPRETTY
+    -derivedDataPath "build/" 2>&1 | tee result.txt | $XCPRETTY --output build/reports/runner.xml
 
   if ! grep '\*\* TEST SUCCEEDED \*\*' result.txt; then
     echo 'Test failed'
