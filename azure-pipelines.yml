@@ -12,7 +12,7 @@ pool:
   demands: xcode
 
 jobs:
-- job: 'Xcode builds and tests'
+- job: Xcode
   steps:
   - script: ./scripts/bluepill.sh build
     displayName: 'Build BluePill'
@@ -29,3 +29,11 @@ jobs:
   - task: PublishBuildArtifacts@1
     inputs:
       pathtoPublish: '$(Build.ArtifactStagingDirectory)'
+
+- job: Bazel
+  steps:
+  - script: 'brew install bazel'
+    displayName: 'Install Bazel'
+  
+  - script: 'bazel build //bluepill:bluepill'
+    displayName: 'Bazel build'
