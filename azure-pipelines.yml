@@ -23,7 +23,7 @@ jobs:
       testResultsFormat: 'JUnit'
       testResultsFiles: 'build/reports/*.xml' 
       mergeTestResults: false
-      failTaskOnFailedTests: true
+      failTaskOnFailedTests: false
   - task: CopyFiles@2
     inputs:
       contents: 'build/**/*.zip'
