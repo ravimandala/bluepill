@@ -18,6 +18,8 @@ jobs:
     displayName: 'Build BluePill'
   - script: ./scripts/bluepill.sh test
     displayName: 'Run BluePill tests'
+  - script: ls -alR
+    displayName: 'List stuff'
   - task: PublishTestResults@2
     inputs:
       testResultsFormat: 'JUnit'
