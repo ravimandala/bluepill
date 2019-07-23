@@ -377,7 +377,7 @@
         NSError *error;
         BOOL uploadResult = [self.device addVideo:videoUrl error:&error];
         if (!uploadResult && error) {
-            [BPUtils printInfo:ERROR withString:@"Failed to upload video at path: %@, error message: %@", urlString, [error description]];
+//            [BPUtils printInfo:ERROR withString:@"Failed to upload video at path: %@, error message: %@", urlString, [error description]];
         }
     }
 }
@@ -388,7 +388,7 @@
         NSError *error;
         BOOL uploadResult = [self.device addPhoto:photoUrl error:&error];
         if (!uploadResult && error) {
-            [BPUtils printInfo:ERROR withString:@"Failed to upload photo at path: %@, error message: %@", urlString, [error description]];
+//            [BPUtils printInfo:ERROR withString:@"Failed to upload photo at path: %@, error message: %@", urlString, [error description]];
         }
     }
 }
@@ -446,6 +446,7 @@
 
     NSMutableDictionary *argsAndEnv = [[NSMutableDictionary alloc] init];
     NSArray *argumentsArr = self.config.commandLineArguments ?: @[];
+    [BPUtils printInfo:INFO withString:@"Got arguments: %@", argumentsArr];
     NSMutableArray *commandLineArgs = [NSMutableArray array];
     for (NSString *argument in argumentsArr) {
         NSArray *argumentsArray = [argument componentsSeparatedByString:@" "];
@@ -554,7 +555,7 @@
 
             [BPUtils printInfo:INFO withString:@"Completion block for launch"];
             if (completion) {
-                [BPUtils printInfo:INFO withString:@"Calling completion block with: %@ - %d", error, pid];
+                [BPUtils printInfo:INFO withString:@"Calling completion block (Error: %@) - %d", error, pid];
                 completion(error, pid);
             }
         });

@@ -206,7 +206,7 @@ static void onInterrupt(int ignore) {
     BPXCTestFile *xctTestFile = [BPXCTestFile BPXCTestFileFromXCTestBundle:context.config.testBundlePath
                                                           andHostAppBundle:testHostPath
                                                                  withError:&error];
-    NSAssert(xctTestFile != nil, @"Failed to load testcases from %@", [error localizedDescription]);
+    NSAssert(xctTestFile != nil, @"Failed to load testcases. Error: %@", [error localizedDescription]);
     context.config.allTestCases = [[NSArray alloc] initWithArray: xctTestFile.allTestCases];
 
 

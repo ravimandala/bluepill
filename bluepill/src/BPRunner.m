@@ -93,6 +93,7 @@ maxprocs(void)
 - (NSTask *)newTaskWithBundle:(BPXCTestFile *)bundle
                     andNumber:(NSUInteger)number
                     andDevice:(NSString *)deviceID
+                   andTrackID:(NSNumber *)trackID
            andCompletionBlock:(void (^)(NSTask *))block {
     BPConfiguration *cfg = [self.config mutableCopy];
     assert(cfg);
@@ -121,7 +122,7 @@ maxprocs(void)
     NSString *tmpFileName = [NSString stringWithFormat:@"%@/bluepill-%u-config",
                              NSTemporaryDirectory(),
                              getpid()];
-
+    cfg.trackID = trackID;
     cfg.configOutputFile = [BPUtils mkstemp:tmpFileName withError:&err];
     if (!cfg.configOutputFile) {
         fprintf(stderr, "ERROR: %s\n", [[err localizedDescription] UTF8String]);
@@ -217,6 +218,7 @@ maxprocs(void)
                 withString:@"Lowering number of parallel simulators from %lu to %lu because there aren't enough test bundles.",
                             numSims, bundles.count];
         numSims = bundles.count;
+        self.config.numSims = [NSNumber numberWithUnsignedInteger:bundles.count];
     }
     if (self.config.cloneSimulator) {
         self.testHostForSimUDID = [bpSimulator createSimulatorAndInstallAppWithBundles:xcTestFiles];
@@ -277,7 +279,7 @@ maxprocs(void)
                     [deviceList removeObjectAtIndex:0];
                 }
             }
-            NSTask *task = [self newTaskWithBundle:[bundles objectAtIndex:0] andNumber:++taskNumber andDevice:deviceID andCompletionBlock:^(NSTask * _Nonnull task) {
+            NSTask *task = [self newTaskWithBundle:[bundles objectAtIndex:0] andNumber:++taskNumber andDevice:deviceID andTrackID:@1234 andCompletionBlock:^(NSTask * _Nonnull task) {
                 @synchronized (self) {
                     launchedTasks--;
                     [taskList removeObject:[NSString stringWithFormat:@"%lu", taskNumber]];

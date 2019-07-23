@@ -52,8 +52,11 @@
     for (BPXCTestFile *xctFile in sortedXCTestFiles) {
         NSArray *bundleTestsToRun = [[testsToRunByTestFilePath[xctFile.testBundlePath] allObjects] sortedArrayUsingSelector:@selector(compare:)];
         NSUInteger bundleTestsToRunCount = [bundleTestsToRun count];
-        // if the xctfile is in nosplit list, don't pack it
-        if ([noSplit containsObject:[xctFile name]] || (bundleTestsToRunCount <= testsPerGroup && bundleTestsToRunCount > 0)) {
+        // if the xctfile is in nosplit list, then skip it
+        if ([noSplit containsObject:[xctFile name]]) {
+            continue;
+        }
+        if (bundleTestsToRunCount <= testsPerGroup && bundleTestsToRunCount > 0) {
             // just pack the whole xctest file and move on
             // testsToRun doesn't work reliably, switch to use testsToSkip
             // add testsToSkip from Bluepill runner's config

@@ -66,6 +66,7 @@ typedef NS_ENUM(NSInteger, BPProgram) {
 @property (nonatomic) BOOL headlessMode;
 @property (nonatomic) BOOL cloneSimulator;
 @property (nonatomic, strong) NSNumber *numSims;
+@property (nonatomic, strong) NSNumber *trackID;
 @property (nonatomic) BOOL listTestsOnly;
 @property (nonatomic) BOOL quiet;
 @property (nonatomic, strong) NSString *deleteSimUDID;
