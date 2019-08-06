@@ -116,9 +116,10 @@
         return NULL;
     }
 
-    NSMutableDictionary *estimatedTimesByTestFilePath = [[NSMutableDictionary alloc] init];
+    NSMutableDictionary *testsToRunByTestFilePath = [[NSMutableDictionary alloc] init];
+    NSMutableDictionary *testEstimatedTimesByTestFilePath = [[NSMutableDictionary alloc] init];
     NSArray *testCasesToRun = config.testCasesToRun;
-
+    [BPUtils printInfo:INFO withString:@"Test cases to run from the config: %lu", [config.testCasesToRun count]];
     double totalTime = 0.0;
     for (BPXCTestFile *xctFile in xcTestFiles) {
         NSMutableSet *bundleTestsToRun = [[NSMutableSet alloc] initWithArray:[xctFile allTestCases]];
@@ -128,37 +129,117 @@
         if (config.testCasesToSkip && [config.testCasesToSkip count] > 0) {
             [bundleTestsToRun minusSet:[[NSSet alloc] initWithArray:config.testCasesToSkip]];
         }
+        [BPUtils printInfo:INFO withString:@"Bundle: %@; All Tests count: %lu; bundleTestsToRun count: %lu", xctFile.testBundlePath, (unsigned long)[xctFile.allTestCases count], (unsigned long)[bundleTestsToRun count]];
+        if ([bundleTestsToRun count] != [[xctFile allTestCases] count]) {
+            NSMutableArray *allTests = [NSMutableArray arrayWithArray:[xctFile allTestCases]];
+//            [BPUtils printInfo:INFO withString:@"All tests: %@", [allTests componentsJoinedByString:@","]];
+//            [BPUtils printInfo:INFO withString:@"Bundle tests: %@", [[bundleTestsToRun allObjects] componentsJoinedByString:@","]];
+            [allTests removeObjectsInArray:[bundleTestsToRun allObjects]];
+            [BPUtils printInfo:INFO withString:@"Remaining tests that are not set to run: %@", [allTests componentsJoinedByString:@","]];
+        }
         if (bundleTestsToRun.count > 0) {
+            testsToRunByTestFilePath[xctFile.testBundlePath] = bundleTestsToRun;
             double testBundleExecutionTime = 0.0;
             for (NSString *test in bundleTestsToRun) {
                 if ([testTimes objectForKey:test]) {
                     testBundleExecutionTime += [[testTimes objectForKey:test] doubleValue];
                 } else {
-                    [BPUtils printInfo:DEBUGINFO withString:@"Estimated test execution time not found for %@. Settling for a default.", test];
-                    testBundleExecutionTime += 1.0;
+                    [BPUtils printInfo:INFO withString:@"Estimated test execution time not found for %@. Settling for a default.", test];
+                    // TBD: use a smart estimate
+                    testBundleExecutionTime += 0.06;
                 }
             }
-            estimatedTimesByTestFilePath[xctFile.testBundlePath] = [NSNumber numberWithDouble:testBundleExecutionTime];
+            testEstimatedTimesByTestFilePath[xctFile.testBundlePath] = [NSNumber numberWithDouble:testBundleExecutionTime];
             totalTime += testBundleExecutionTime;
         }
     }
-    assert([estimatedTimesByTestFilePath count] == [xcTestFiles count]);
+    assert([testEstimatedTimesByTestFilePath count] == [xcTestFiles count]);
 
+    [BPUtils printInfo:INFO withString:@"Stats before splitting..."];
+    NSMutableDictionary *inputDic = [NSMutableDictionary dictionary];
+    for(id key in testEstimatedTimesByTestFilePath) {
+        inputDic[[key substringFromIndex:[(NSString *)key rangeOfString:@"/" options:NSBackwardsSearch].location+1]] = [testEstimatedTimesByTestFilePath objectForKey:key];
+        NSLog(@"%@ = %@", [key substringFromIndex:[(NSString *)key rangeOfString:@"/" options:NSBackwardsSearch].location+1], [testEstimatedTimesByTestFilePath objectForKey:key]);
+    }
+
+    // TODO: First of all check if the bundles need to be split or not (Hint: Based on numSims, current test bundle count and standard deviation of their execution times)
+    NSUInteger optimalBundleTime = MAX(1, totalTime / MAX (1, [testEstimatedTimesByTestFilePath count]));
+    [BPUtils printInfo:INFO withString:@"Optimal Bundle Time is around %lu seconds.", optimalBundleTime];
     NSMutableArray<BPXCTestFile *> *bundles = [[NSMutableArray alloc] init];
     for (BPXCTestFile *xctFile in xcTestFiles) {
-        NSNumber *estimatedBundleExecutionTime = estimatedTimesByTestFilePath[xctFile.testBundlePath];
-        BPXCTestFile *bundle = [xctFile copy];
-        bundle.skipTestIdentifiers = config.testCasesToSkip;
-        [bundles addObject:bundle];
-        [bundle setEstimatedExecutionTime:estimatedBundleExecutionTime];
+        NSArray *bundleTestsToRun = [[testsToRunByTestFilePath[xctFile.testBundlePath] allObjects] sortedArrayUsingSelector:@selector(compare:)];
+        NSUInteger packed = 0;
+        double splitExecTime = 0.0;
+        double sumOfSplits = 0.0;
+        for (int i = 0; i < [bundleTestsToRun count];) {
+            NSString *test = [bundleTestsToRun objectAtIndex:i];
+            NSString *currentTestClass = [[test componentsSeparatedByString:@"/"] objectAtIndex:0];
+            NSUInteger numTests = 1;
+            // Assume test execution time to a default (Eg. 1.0) if past data is not present.
+            if ([testTimes objectForKey:test]) {
+                splitExecTime += [testTimes[test] doubleValue];
+            } else {
+                splitExecTime += 1.0;
+            }
+            while((i+numTests) < [bundleTestsToRun count]) {
+                NSString *nextTest = [bundleTestsToRun objectAtIndex:(i+numTests)];
+                NSString *nextTestClass = [[nextTest componentsSeparatedByString:@"/"] objectAtIndex:0];
+                if ([currentTestClass isEqualToString:nextTestClass]) {
+                    numTests++;
+                    if ([testTimes objectForKey:nextTest]) {
+                        splitExecTime += [testTimes[test] doubleValue];
+                    } else {
+                        splitExecTime += 1.0;
+                    }
+                } else {
+                    break;
+                }
+            }
+            i += numTests;
+            if (splitExecTime > optimalBundleTime || i >= [bundleTestsToRun count]) {
+                // Make a bundle out of current xctFile
+                BPXCTestFile *bundle = [self makeBundle:xctFile withTests:bundleTestsToRun startAt:packed numTests:(i-packed) estimatedTime:[NSNumber numberWithDouble:splitExecTime]];
+                [bundles addObject:bundle];
+                packed = i;
+                sumOfSplits += splitExecTime;
+                splitExecTime = 0.0;
+            }
+        }
+        [BPUtils printInfo:INFO withString:@"Bundle execution time is %@ vs sum of splits is %f.", testEstimatedTimesByTestFilePath[xctFile.testBundlePath], sumOfSplits] ;
     }
+    [BPUtils printInfo:INFO withString:@"Splitted %lu bundles into %lu bundles.", [xcTestFiles count], [bundles count]] ;
+
     // Sort bundles by execution times
     NSMutableArray *sortedBundles = [NSMutableArray arrayWithArray:[bundles sortedArrayUsingComparator:^NSComparisonResult(id _Nonnull obj1, id _Nonnull obj2) {
-        NSNumber *estimatedTime1 = [(BPXCTestFile *)obj1 estimatedExecutionTime];
-        NSNumber *estimatedTime2 = [(BPXCTestFile *)obj2 estimatedExecutionTime];
-        return [estimatedTime2 doubleValue] - [estimatedTime1 doubleValue];
+        NSNumber *estTime1 = [(BPXCTestFile *)obj1 estimatedExecutionTime];
+        NSNumber *estTime2 = [(BPXCTestFile *)obj2 estimatedExecutionTime];
+        return [estTime2 doubleValue] - [estTime1 doubleValue];
     }]];
+    [BPUtils printInfo:INFO withString:@"Here are splitted and sorted bundles..."];
+    int bpNum = 0;
+    for (BPXCTestFile *bundle in sortedBundles) {
+        [BPUtils printInfo:INFO withString:@"[BP-%d] %@ estimated to take %@ seconds and skips %lu out of %lu tests.", ++bpNum, bundle.name, bundle.estimatedExecutionTime, (unsigned long)[bundle.skipTestIdentifiers count], (unsigned long)[bundle.allTestCases count]];
+    }
     return sortedBundles;
+}
+
++ (BPXCTestFile *)makeBundle:(BPXCTestFile *)xctFile
+                   withTests:(NSArray *)bundleTestsToRun
+                     startAt:(NSUInteger)location
+                    numTests:(NSUInteger)length
+               estimatedTime:(NSNumber *)splitExecutionTime {
+    NSMutableArray *testsToSkip = [NSMutableArray arrayWithArray:bundleTestsToRun];
+    NSRange range = NSMakeRange(location, length);
+    [BPUtils printInfo:INFO withString:@"%@: Including range: (%lu, %lu)", xctFile.testBundlePath, (unsigned long)range.location, (unsigned long)range.length];
+    [testsToSkip removeObjectsInArray:[bundleTestsToRun subarrayWithRange:range]];
+    [testsToSkip addObjectsFromArray:xctFile.skipTestIdentifiers];
+    [testsToSkip sortUsingSelector:@selector(compare:)];
+
+    BPXCTestFile *bundle = [xctFile copy];
+    [bundle setSkipTestIdentifiers:testsToSkip];
+    [bundle setEstimatedExecutionTime:splitExecutionTime];
+
+    return bundle;
 }
 
 + (NSDictionary *)loadConfigFile:(NSString *)file withError:(NSError **)errPtr{
