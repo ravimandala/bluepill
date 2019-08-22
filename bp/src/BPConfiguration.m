@@ -535,6 +535,8 @@ static NSUUID *sessionID;
     if (printConfig) {
         [self printConfig];
         exit(0);
+    } else {
+        [self printConfig];
     }
     return TRUE;
 }
@@ -561,6 +563,47 @@ static NSUUID *sessionID;
         return NO;
     }
     self.xcTestRunDict = plist;
+    return YES;
+}
+
+- (BOOL)parseXcSchemeFile:(NSString *)schemePath withError:(NSError *__autoreleasing *)errPtr {
+    NSMutableArray<NSString *> *commandLineArgs  = [NSMutableArray new];
+    NSMutableDictionary<NSString *, NSString *> *environmentVariables = [NSMutableDictionary new];
+
+    NSData *xmlData = [[NSMutableData alloc] initWithContentsOfFile:schemePath];
+    if (xmlData) {
+        NSXMLDocument *document = [[NSXMLDocument alloc] initWithData:xmlData options:0 error:errPtr];
+        if (!document) {
+            BP_SET_ERROR(errPtr, @"Failed to parse scheme file at %@: %@", schemePath, [*errPtr localizedDescription]);
+            return NO;
+        }
+        NSArray *argsNodes = [document nodesForXPath:[NSString stringWithFormat:@"//%@//CommandLineArgument", @"LaunchAction"] error:errPtr];
+        NSMutableArray *envNodes = [[NSMutableArray alloc] init];
+        [envNodes addObjectsFromArray:[document nodesForXPath:[NSString stringWithFormat:@"//%@//EnvironmentVariable", @"LaunchAction"] error:errPtr]];
+        [envNodes addObjectsFromArray:[document nodesForXPath:[NSString stringWithFormat:@"//%@//EnvironmentVariable", @"TestAction"] error:errPtr]];
+        for (NSXMLElement *node in argsNodes) {
+            NSString *argument = [[node attributeForName:@"argument"] stringValue];
+            if (![[[node attributeForName:@"isEnabled"] stringValue] boolValue]) {
+                continue;
+            }
+            NSArray *argumentsArray = [argument componentsSeparatedByString:@" "];
+            for (NSString *arg in argumentsArray) {
+                if (![arg isEqualToString:@""]) {
+                    [commandLineArgs addObject:arg];
+                }
+            }
+        }
+
+        for (NSXMLElement *node in envNodes) {
+            NSString *key = [[node attributeForName:@"key"] stringValue];
+            NSString *value = [[node attributeForName:@"value"] stringValue];
+            if ([[[node attributeForName:@"isEnabled"] stringValue] boolValue]) {
+                environmentVariables[key] = value;
+            }
+        }
+    }
+    self.commandLineArguments = commandLineArgs;
+    self.environmentVariables = environmentVariables;
     return YES;
 }
 
