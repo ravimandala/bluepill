@@ -225,8 +225,6 @@ NSString *objcNmCmdline = @"nm -U '%@' | grep ' t ' | cut -d' ' -f3,4 | cut -d'-
     return [NSString stringWithFormat:@"<%@: %p> allTests: %lu skipped: %lu", [self class], self, (unsigned long)allTestClasses.count, (unsigned long)self.skipTestIdentifiers.count];
 }
 
-
-
 - (id)copyWithZone:(NSZone *)zone {
     BPXCTestFile *copy = [[BPXCTestFile alloc] init];
     if (copy) {
@@ -243,4 +241,7 @@ NSString *objcNmCmdline = @"nm -U '%@' | grep ' t ' | cut -d' ' -f3,4 | cut -d'-
     return copy;
 }
 
+- (BOOL)isEqual:(id)object{
+    return [object isKindOfClass:[BPXCTestFile class]] && [self.name isEqualToString: ((BPXCTestFile*)object).name];
+}
 @end
