@@ -77,7 +77,7 @@ struct BPOptions {
         "Number of simulators to run in parallel. (bluepill only)"},
     {'o', "output-dir", BP_MASTER | BP_SLAVE, NO, NO, required_argument, NULL, BP_VALUE | BP_PATH, "outputDirectory",
         "Directory where to put output log files (bluepill only)."},
-    {'j', "test-time-estimates-json", BP_MASTER | BP_SLAVE, NO, NO, required_argument, NULL, BP_VALUE | BP_PATH, "testTimeEstimatesJsonFile",
+    {'j', "test-time-estimates-json", BP_MASTER, NO, NO, required_argument, NULL, BP_VALUE | BP_PATH, "testTimeEstimatesJsonFile",
         "Directory where Bluepill looks for input files with test execution time estimates (bluepill only)."},
     {'r', "runtime", BP_MASTER | BP_SLAVE, NO, NO, required_argument, BP_DEFAULT_RUNTIME, BP_VALUE, "runtime",
         "What runtime to use."},
@@ -530,6 +530,8 @@ static NSUUID *sessionID;
     if (printConfig) {
         [self printConfig];
         exit(0);
+    } else {
+        [self printConfig];
     }
     return TRUE;
 }
@@ -593,7 +595,6 @@ static NSUUID *sessionID;
             if ([[[node attributeForName:@"isEnabled"] stringValue] boolValue]) {
                 environmentVariables[key] = value;
             }
-            
         }
     }
     self.commandLineArguments = commandLineArgs;

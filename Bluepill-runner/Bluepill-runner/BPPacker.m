@@ -133,6 +133,8 @@
                 // TODO: Assign a sensible default if the estimate is not given
                 if ([testTimes objectForKey:test]) {
                     testBundleExecutionTime += [[testTimes objectForKey:test] doubleValue];
+                } else {
+                    [BPUtils printInfo:INFO withString:@"Estimate not available for %@", test];
                 }
             }];
             estimatedTimesByTestFilePath[xctFile.testBundlePath] = [NSNumber numberWithDouble:testBundleExecutionTime];
@@ -148,12 +150,23 @@
         [bundle setEstimatedExecutionTime:estimatedTimesByTestFilePath[xctFile.testBundlePath]];
         [bundles addObject:bundle];
     }
-    // Sort bundles by execution times
+    // Sort bundles by execution times from longest to shortest
     NSMutableArray *sortedBundles = [NSMutableArray arrayWithArray:[bundles sortedArrayUsingComparator:^NSComparisonResult(id _Nonnull obj1, id _Nonnull obj2) {
         NSNumber *estimatedTime1 = [(BPXCTestFile *)obj1 estimatedExecutionTime];
         NSNumber *estimatedTime2 = [(BPXCTestFile *)obj2 estimatedExecutionTime];
-        return [estimatedTime2 doubleValue] - [estimatedTime1 doubleValue];
+        if ([estimatedTime1 doubleValue] < [estimatedTime2 doubleValue]) {
+            return NSOrderedDescending;
+        } else if([estimatedTime1 doubleValue] > [estimatedTime2 doubleValue]) {
+            return NSOrderedAscending;
+        } else {
+            return NSOrderedSame;
+        }
     }]];
+    NSNumberFormatter *fmt = [[NSNumberFormatter alloc] init];
+    [fmt setPositiveFormat:@".02"];
+    for (BPXCTestFile *bundle in sortedBundles) {
+        [BPUtils printInfo:INFO withString:@"Estimated time is %@ for %@", [fmt stringFromNumber:bundle.estimatedExecutionTime], bundle.testBundlePath];
+    }
     return sortedBundles;
 }
 
