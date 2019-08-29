@@ -61,6 +61,7 @@ typedef NS_ENUM(NSInteger, BPProgram) {
 @property (nonatomic, strong) NSString *configOutputFile;
 @property (nonatomic, strong) NSString *outputDirectory;
 @property (nonatomic, strong) NSString *testTimeEstimatesJsonFile;
+@property (nonatomic, strong) NSString *testClassMappingJsonFile;
 @property (nonatomic, strong) NSString *screenshotsDirectory;
 @property (nonatomic, strong) NSString *simulatorPreferencesFile;
 @property (nonatomic, strong) NSString *scriptFilePath;
