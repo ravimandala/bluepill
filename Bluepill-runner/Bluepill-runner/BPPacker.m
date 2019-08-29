@@ -58,14 +58,13 @@
             }
         }
     }
-    
+
     NSUInteger testsPerGroup = MAX(1, totalTests / numBundles);
     NSMutableArray<BPXCTestFile *> *bundles = [[NSMutableArray alloc] init];
-    for (BPXCTestFile *xctFile in sortedXCTestFiles) {
+    for (BPXCTestFile *xctFile in sortedXCTestFiles) { // VoyagerFeedIndividualPageTests3
         NSArray *bundleTestsToRun = [[testsToRunByTestFilePath[xctFile.testBundlePath] allObjects] sortedArrayUsingSelector:@selector(compare:)];
-        NSUInteger bundleTestsToRunCount = [bundleTestsToRun count];
         // if the xctfile is in nosplit list, don't pack it
-        if ([noSplit containsObject:[xctFile name]] || (bundleTestsToRunCount <= testsPerGroup && bundleTestsToRunCount > 0)) {
+        if (![xctFile.testBundlePath containsString:@"VoyagerFeedIndividualPageTests3"]) {
             // just pack the whole xctest file and move on
             // testsToRun doesn't work reliably, switch to use testsToSkip
             // add testsToSkip from Bluepill runner's config
@@ -79,6 +78,8 @@
         // We don't want to pack tests from different xctest bundles so we just split
         // the current test bundle in chunks and pack those.
         NSArray *allTestCases = [[xctFile allTestCases] sortedArrayUsingSelector:@selector(compare:)];
+//        [BPUtils printInfo:DEBUG withString:@"All tests count: %@\nAll tests: %@", allTestCases.count, [[xctFile allTestCases] componentsJoinedByString:@"\n"]];
+        testsPerGroup = [allTestCases count] / [config.numSims integerValue];
         NSUInteger packed = 0;
         while (packed < bundleTestsToRun.count) {
             NSRange range;
@@ -88,6 +89,7 @@
             [testsToSkip removeObjectsInArray:[bundleTestsToRun subarrayWithRange:range]];
             [testsToSkip addObjectsFromArray:xctFile.skipTestIdentifiers];
             [testsToSkip sortUsingSelector:@selector(compare:)];
+//            [BPUtils printInfo:DEBUG withString:@"Skipped: %@", [testsToSkip componentsJoinedByString:@"\n"]];
             BPXCTestFile *bundle = [xctFile copy];
             bundle.skipTestIdentifiers = testsToSkip;
             [bundles addObject:bundle];
@@ -160,7 +162,7 @@
         NSLog(@"%@ = %@", [key substringFromIndex:[(NSString *)key rangeOfString:@"/" options:NSBackwardsSearch].location+1], [testEstimatedTimesByTestFilePath objectForKey:key]);
     }
 
-    int minimumBundleTime = 300;
+    int minimumBundleTime = 180;
     NSUInteger maxBundleTime = MAX(minimumBundleTime, totalTime / [config.numSims integerValue]);
     [BPUtils printInfo:INFO withString:@"Max Bundle Time is around %lu seconds.", maxBundleTime];
 
@@ -202,7 +204,7 @@
                         break;
                     }
                 }
-                if (unknownTests > 0) {
+                if (unknownTests > 0 && [myArray count] > 0) {
                     NSArray *sorted = [myArray sortedArrayUsingSelector:@selector(compare:)];   // Sort the array by value
                     NSUInteger middle = [sorted count] / 2;                                     // Find the index of the middle element
                     NSNumber *median = [sorted objectAtIndex:middle];                           // Get the middle element

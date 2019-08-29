@@ -129,29 +129,15 @@ maxprocs(void)
     NSMutableDictionary *env = [[NSMutableDictionary alloc] init];
     [env addEntriesFromDictionary:[[NSProcessInfo processInfo] environment]];
     [env setObject:[NSString stringWithFormat:@"%lu", number] forKey:@"_BP_NUM"];
+//    [env setObject:deviceID forKey:@"_TRACK_NAME"];
     [task setEnvironment:env];
     [task setTerminationHandler:^(NSTask *task) {
         [[NSFileManager defaultManager] removeItemAtPath:cfg.configOutputFile
                                                    error:nil];
         [BPUtils printInfo:INFO withString:@"BP-%lu (PID %u) has finished with exit code %d.",
-                                            number, [task processIdentifier], [task terminationStatus]];
+         number, [task processIdentifier], [task terminationStatus]];
+
         block(task);
-    }];
-    return task;
-}
-
-- (NSTask *)newTaskToDeleteDevice:(NSString *)deviceID andNumber:(NSUInteger)number {
-    NSTask *task = [[NSTask alloc] init];
-    [task setLaunchPath:self.bpExecutable];
-    [task setArguments:@[@"-D", deviceID]];
-    NSMutableDictionary *env = [[NSMutableDictionary alloc] init];
-    [env addEntriesFromDictionary:[[NSProcessInfo processInfo] environment]];
-    [env setObject:[NSString stringWithFormat:@"%lu", number] forKey:@"_BP_NUM"];
-    [task setEnvironment:env];
-
-    [task setTerminationHandler:^(NSTask * _Nonnull task) {
-        [BPUtils printInfo:INFO withString:@"BP-%lu (PID %u) to delete device %@ has finished with exit code %d.",
-         number, [task processIdentifier], deviceID, [task terminationStatus]];
     }];
     return task;
 }
@@ -215,8 +201,8 @@ maxprocs(void)
             return 1;
         }
     }
-    [BPUtils printInfo:INFO withString:@"Running with %lu parallel simulator%s.",
-     (unsigned long)numSims, (numSims > 1) ? "s" : ""];
+    [BPUtils printInfo:INFO withString:@"Running BP with %lu %s.", (unsigned long)numSims, (numSims > 1) ? "parallel simulators" : "simulator"];
+
     NSArray *copyBundles = [NSMutableArray arrayWithArray:bundles];
     for (int i = 1; i < [self.config.repeatTestsCount integerValue]; i++) {
         [bundles addObjectsFromArray:copyBundles];
@@ -310,12 +296,6 @@ maxprocs(void)
         }
         seconds += 1;
         [self addCounters];
-    }
-
-    for (int i = 0; i < [deviceList count]; i++) {
-        NSTask *task = [self newTaskToDeleteDevice:[deviceList objectAtIndex:i] andNumber:i+1];
-        [task launch];
-        //fire & forget, DON'T WAIT
     }
 
     [BPUtils printInfo:INFO withString:@"All BPs have finished."];

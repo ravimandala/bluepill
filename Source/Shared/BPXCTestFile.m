@@ -11,6 +11,7 @@
 #import "BPConstants.h"
 #import "BPTestClass.h"
 #import "BPUtils.h"
+#import <XCTest/XCTest.h>
 
 @implementation BPXCTestFile
 
@@ -98,7 +99,6 @@ NSString *objcNmCmdline = @"nm -U '%@' | grep ' t ' | cut -d' ' -f3,4 | cut -d'-
         [testClass addTestCase:[[BPTestCase alloc] initWithName:parts[1]]];
     }
 
-
     xcTestFile.testClasses = [NSArray arrayWithArray:allClasses];
     return xcTestFile;
 }
@@ -182,11 +182,17 @@ NSString *objcNmCmdline = @"nm -U '%@' | grep ' t ' | cut -d' ' -f3,4 | cut -d'-
 
 - (NSArray *)allTestCases {
     NSMutableArray *ret = [[NSMutableArray alloc] init];
+    int totalTests = 0;
     for (BPTestClass *testClass in self.testClasses) {
+//        [BPUtils printInfo:INFO withString:@"Class name and count: %@, %lu", testClass.name, (unsigned long)[testClass.testCases count]];
+//        [BPUtils printInfo:INFO withString:@"ret count before adding class: %@ is %d", testClass.name, totalTests];
+        totalTests += [testClass.testCases count];
         for (BPTestCase *testCase in testClass.testCases) {
             [ret addObject:[NSString stringWithFormat:@"%@/%@", testClass.name, testCase.name]];
         }
+//        [BPUtils printInfo:INFO withString:@"ret count after  adding class: %@ is %d", testClass.name, totalTests];
     }
+//    [BPUtils printInfo:INFO withString:@"ret count is %lu and totalTests = %d", [ret count], totalTests];
     return ret;
 }
 

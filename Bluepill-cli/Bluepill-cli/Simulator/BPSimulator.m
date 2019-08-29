@@ -377,7 +377,7 @@
         NSError *error;
         BOOL uploadResult = [self.device addVideo:videoUrl error:&error];
         if (!uploadResult && error) {
-            [BPUtils printInfo:ERROR withString:@"Failed to upload video at path: %@, error message: %@", urlString, [error description]];
+//            [BPUtils printInfo:ERROR withString:@"Failed to upload video at path: %@, error message: %@", urlString, [error description]];
         }
     }
 }
@@ -388,7 +388,7 @@
         NSError *error;
         BOOL uploadResult = [self.device addPhoto:photoUrl error:&error];
         if (!uploadResult && error) {
-            [BPUtils printInfo:ERROR withString:@"Failed to upload photo at path: %@, error message: %@", urlString, [error description]];
+//            [BPUtils printInfo:ERROR withString:@"Failed to upload photo at path: %@, error message: %@", urlString, [error description]];
         }
     }
 }

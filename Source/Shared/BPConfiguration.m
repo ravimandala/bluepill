@@ -688,6 +688,7 @@ static NSUUID *sessionID;
     }
 
     if (self.testTimeEstimatesJsonFile) {
+        [BPUtils printInfo:INFO withString:@"Found testTimeEstimatesJsonFile: %@", self.testTimeEstimatesJsonFile];
         if ([[NSFileManager defaultManager] fileExistsAtPath:self.testTimeEstimatesJsonFile isDirectory:&isdir]) {
             if (isdir) {
                 BP_SET_ERROR(errPtr, @"%@ is a directory.", self.testTimeEstimatesJsonFile);
