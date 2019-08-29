@@ -102,12 +102,7 @@ static BOOL quiet = NO;
         nl = "";
     }
 
-    if (isatty(1) && !bp_testing) {
-        fprintf(fd, "{%d} %s %s[%s]%s %s%s%s",
-                getpid(), ts, message.color, message.text, ANSI_COLOR_RESET, [simNum UTF8String], [txt UTF8String], nl);
-    } else {
-        fprintf(fd, "{%d} %s [%s] %s%s%s", getpid(), ts, message.text, [simNum UTF8String], [txt UTF8String], nl);
-    }
+    fprintf(fd, "{%d} %s [%s] %s%s%s", getpid(), ts, message.text, [simNum UTF8String], [txt UTF8String], nl);
     fflush(fd);
 }
 
