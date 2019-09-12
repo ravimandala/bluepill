@@ -38,10 +38,6 @@
                               andXcodePath:(NSString *)xcodePath
                                   andError:(NSError **)errPtr;
 
-+ (instancetype)BPXCTestFileFromBPTestPlan:(BPTestPlan *) testPlan
-                              andXcodePath:(NSString *)xcodePath
-                                  andError:(NSError **)errPtr;
-
 - (NSUInteger)numTests;
 - (NSArray *)allTestCases;
 - (void)listTestClasses;
