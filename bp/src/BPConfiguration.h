@@ -91,7 +91,6 @@ typedef NS_ENUM(NSInteger, BPProgram) {
 @property (nonatomic) BOOL testing_CrashAppOnLaunch;
 @property (nonatomic) BOOL testing_HangAppOnLaunch;
 @property (nonatomic) BOOL testing_NoAppWillRun;
-@property (nonatomic) NSNumber *testing_crashOnAttempt;
 
 // Generated fields
 @property (nonatomic, strong) NSString *xcodePath;

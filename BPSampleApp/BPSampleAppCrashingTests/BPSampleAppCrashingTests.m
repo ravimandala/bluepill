@@ -27,7 +27,6 @@ NSString *attemptFromSimulatorVersionInfo(NSString *simulatorVersionInfo) {
     parts = [device componentsSeparatedByString:@"-"];
     NSString *attempt = parts[1];
     return attempt;
-
 }
 
 - (void)setUp {
@@ -46,18 +45,18 @@ NSString *attemptFromSimulatorVersionInfo(NSString *simulatorVersionInfo) {
 }
 
 - (void)testAppCrash1 {
-    NSDictionary *env = [[NSProcessInfo processInfo] environment];
-    NSString *simulatorVersionInfo = [env objectForKey:@"SIMULATOR_VERSION_INFO"];
-    NSString *attempt = attemptFromSimulatorVersionInfo(simulatorVersionInfo);
-    NSString *crashOnAttempt = [env objectForKey:@"_BP_TEST_CRASH_ON_ATTEMPT"];
-
-    NSLog(@"Attempt: %@ Crash requested on %@", attempt, crashOnAttempt);
-    if (crashOnAttempt && crashOnAttempt != attempt) {
-        NSLog(@"not crashing");
-        return;
-    }
-    NSLog(@"crashing");
-    // ok, let's crash and burn
+//    NSDictionary *env = [[NSProcessInfo processInfo] environment];
+//    NSString *simulatorVersionInfo = [env objectForKey:@"SIMULATOR_VERSION_INFO"];
+//    NSString *attempt = attemptFromSimulatorVersionInfo(simulatorVersionInfo);
+//    NSString *crashOnAttempt = [env objectForKey:@"_BP_TEST_CRASH_ON_ATTEMPT"];
+//
+//    NSLog(@"Attempt: %@ Crash requested on %@", attempt, crashOnAttempt);
+//    if (crashOnAttempt && crashOnAttempt != attempt) {
+//        NSLog(@"not crashing");
+//        return;
+//    }
+//    NSLog(@"crashing");
+//    // ok, let's crash and burn
     int *pointer = nil;
     *pointer = 1;
 }
