@@ -109,7 +109,7 @@
     }
 
     // load the config file
-    NSDictionary *testTimes = [BPUtils loadSimpleJsonFile:config.testTimeEstimatesJsonFile withError:errPtr];
+    NSDictionary *testTimes = [BPUtils loadJsonMappingFile:config.testTimeEstimatesJsonFile withError:errPtr];
     if (errPtr && *errPtr) {
         [BPUtils printInfo:ERROR withString:@"%@", [*errPtr localizedDescription]];
         return NULL;

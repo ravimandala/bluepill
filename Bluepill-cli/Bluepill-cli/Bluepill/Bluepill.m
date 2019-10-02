@@ -205,6 +205,8 @@ void onInterrupt(int ignore) {
     NSString *testHostPath = context.config.testRunnerAppPath ?: context.config.appBundlePath;
     BPXCTestFile *xctTestFile = [BPXCTestFile BPXCTestFileFromXCTestBundle:context.config.testBundlePath
                                                           andHostAppBundle:testHostPath
+                                                        andUITargetAppPath:nil
+                                                          andClassMappings:nil
                                                                  withError:&error];
     NSAssert(xctTestFile != nil, @"Failed to load testcases from: %@; Error: %@", context.config.testBundlePath, [error localizedDescription]);
     context.config.allTestCases = [[NSArray alloc] initWithArray: xctTestFile.allTestCases];
@@ -245,7 +247,7 @@ void onInterrupt(int ignore) {
     // Set up retry counts.
     self.maxCreateTries = [self.config.maxCreateTries integerValue];
     self.maxInstallTries = [self.config.maxInstallTries integerValue];
-    
+
     if (context.config.deleteSimUDID) {
         NEXT([self deleteSimulatorOnlyTaskWithContext:context]);
     } else {
@@ -509,7 +511,7 @@ void onInterrupt(int ignore) {
         [BPUtils printInfo:INFO withString:@"Saving Diagnostics for Debugging"];
         [BPUtils saveDebuggingDiagnostics:_config.outputDirectory];
       }
-      
+
       [self deleteSimulatorWithContext:context andStatus:[context.runner exitStatus]];
     }
 }
@@ -517,7 +519,7 @@ void onInterrupt(int ignore) {
 - (void)deleteSimulatorWithContext:(BPExecutionContext *)context andStatus:(BPExitStatus)status {
     context.exitStatus = status;
     __weak typeof(self) __self = self;
-    
+
     [self deleteSimulatorWithContext:context completion:^{
         NEXT([__self finishWithContext:context]);
     }];
@@ -528,7 +530,7 @@ void onInterrupt(int ignore) {
     NSString *stepName = DELETE_SIMULATOR(context.attemptNumber);
     [[BPStats sharedStats] startTimer:stepName];
     [BPUtils printInfo:INFO withString:@"%@", stepName];
-    
+
     BPWaitTimer *timer = [BPWaitTimer timerWithInterval:[self.config.deleteTimeout doubleValue]];
     [timer start];
 
@@ -564,13 +566,13 @@ void onInterrupt(int ignore) {
 
 // Only called when bp is running in the delete only mode.
 - (void)deleteSimulatorOnlyTaskWithContext:(BPExecutionContext *)context {
-    
+
     if ([context.runner useSimulatorWithDeviceUDID: [[NSUUID alloc] initWithUUIDString:context.config.deleteSimUDID]]) {
         NEXT([self deleteSimulatorWithContext:context andStatus:BPExitStatusSimulatorDeleted]);
     } else {
         [BPUtils printInfo:ERROR withString:@"Failed to reconnect to simulator %@", context.config.deleteSimUDID];
         context.exitStatus = BPExitStatusSimulatorReuseFailed;
-        
+
         NEXT([self finishWithContext:context]);
     }
 }

@@ -155,6 +155,6 @@ typedef BOOL (^BPRunBlock)(void);
  * @param errPtr an error if loading json mapping fails for some reason
  * @return a dictionary with the mappings
  */
-+ (NSDictionary *)loadSimpleJsonFile:(NSString *)filePath withError:(NSError **)errPtr;
++ (NSDictionary *)loadJsonMappingFile:(NSString *)filePath withError:(NSError **)errPtr;
 
 @end

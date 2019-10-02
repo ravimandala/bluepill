@@ -296,15 +296,18 @@ static BOOL quiet = NO;
     return [testName substringWithRange:regexMatches.firstObject.range];
 }
 
-+ (NSDictionary *)loadSimpleJsonFile:(NSString *)filePath
-                           withError:(NSError **)errPtr {
++ (NSDictionary *)loadJsonMappingFile:(NSString *)filePath
+                            withError:(NSError **)errPtr {
     NSData *data = [NSData dataWithContentsOfFile:filePath
                                           options:NSDataReadingMappedIfSafe
                                             error:errPtr];
-    if (!data) return nil;
+    if (!data) {
+        BP_SET_ERROR(errPtr, @"Unable to read the input file");
+        return nil;
+    }
 
     return [NSJSONSerialization JSONObjectWithData:data
-                                           options:NSJSONReadingAllowFragments
+                                           options:kNilOptions
                                              error:errPtr];
 }
 

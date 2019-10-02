@@ -78,7 +78,9 @@ struct BPOptions {
     {'o', "output-dir", BP_MASTER | BP_SLAVE, NO, NO, required_argument, NULL, BP_VALUE | BP_PATH, "outputDirectory",
         "Directory where to put output log files (bluepill only)."},
     {'j', "test-time-estimates-json", BP_MASTER, NO, NO, required_argument, NULL, BP_VALUE | BP_PATH, "testTimeEstimatesJsonFile",
-        "Path of the input file with test execution time estimates."},
+        "Path of the input file with test execution time estimates (bluepill only)."},
+    {'e', "inherited-class-mapping-json", BP_MASTER, NO, NO, required_argument, NULL, BP_VALUE | BP_PATH, "inheritedClassMappingJsonFile",
+        "Path of the input file with mapping between base test classes and corresponding inherited test classes."},
     {'r', "runtime", BP_MASTER | BP_SLAVE, NO, NO, required_argument, BP_DEFAULT_RUNTIME, BP_VALUE, "runtime",
         "What runtime to use."},
     {'x', "exclude", BP_MASTER | BP_SLAVE, NO, NO, required_argument, NULL, BP_LIST, "testCasesToSkip",
@@ -563,7 +565,7 @@ static NSUUID *sessionID;
 - (BOOL)parseXcSchemeFile:(NSString *)schemePath withError:(NSError *__autoreleasing *)errPtr {
     NSMutableArray<NSString *> *commandLineArgs  = [NSMutableArray new];
     NSMutableDictionary<NSString *, NSString *> *environmentVariables = [NSMutableDictionary new];
-    
+
     NSData *xmlData = [[NSMutableData alloc] initWithContentsOfFile:schemePath];
     if (xmlData) {
         NSXMLDocument *document = [[NSXMLDocument alloc] initWithData:xmlData options:0 error:errPtr];
@@ -587,7 +589,7 @@ static NSUUID *sessionID;
                 }
             }
         }
-        
+
         for (NSXMLElement *node in envNodes) {
             NSString *key = [[node attributeForName:@"key"] stringValue];
             NSString *value = [[node attributeForName:@"value"] stringValue];
@@ -621,7 +623,7 @@ static NSUUID *sessionID;
         BP_SET_ERROR(errPtr, @"Could not find Xcode at %@", self.xcodePath);
         return NO;
     }
-    
+
     //Check if xcode version running on the host match the intended Bluepill branch: Xcode 9 branch is not backward compatible
     NSString *xcodeVersion = [BPUtils runShell:@"xcodebuild -version"];
     [BPUtils printInfo:DEBUGINFO withString:@"xcode build version: %@", xcodeVersion];
@@ -629,7 +631,7 @@ static NSUUID *sessionID;
         BP_SET_ERROR(errPtr, @"ERROR: Invalid Xcode version:\n%s;\nOnly %s is supported\n", [xcodeVersion UTF8String], BP_DEFAULT_XCODE_VERSION);
         return NO;
     }
-    
+
     //Check if Bluepill compile time Xcode version is matched with Bluepill runtime Xcode version
     //Senario to prevent: Bluepill is compiled with Xcode 8, but runs with host installed with Xcode 9
     //Only compare major and minor version version Exg. 9.1 == 9.1
@@ -658,7 +660,7 @@ static NSUUID *sessionID;
     }
     NSString *path = [self.appBundlePath stringByAppendingPathComponent:@"Info.plist"];
     NSDictionary *dic = [NSDictionary dictionaryWithContentsOfFile:path];
-    
+
     if (!dic) {
         BP_SET_ERROR(errPtr, @"Could not read %@, perhaps you forgot to run xcodebuild build-for-testing?", path);
     }
@@ -697,6 +699,19 @@ static NSUUID *sessionID;
             return NO;
         }
     }
+
+    if (self.inheritedClassMappingJsonFile) {
+        if ([[NSFileManager defaultManager] fileExistsAtPath:self.inheritedClassMappingJsonFile isDirectory:&isdir]) {
+            if (isdir) {
+                BP_SET_ERROR(errPtr, @"%@ is a directory.", self.inheritedClassMappingJsonFile);
+                return NO;
+            }
+        } else {
+            BP_SET_ERROR(errPtr, @"%@ doesn't exist", self.inheritedClassMappingJsonFile);
+            return NO;
+        }
+    }
+
     if (self.screenshotsDirectory) {
         if ([[NSFileManager defaultManager] fileExistsAtPath:self.screenshotsDirectory isDirectory:&isdir]) {
             if (!isdir) {
