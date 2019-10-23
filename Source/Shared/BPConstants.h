@@ -9,12 +9,13 @@
 
 #import <Foundation/Foundation.h>
 
-#define BP_DEFAULT_RUNTIME "iOS 12.2"
-#define BP_DEFAULT_DEVICE_TYPE "iPhone 7"
-#define BP_TM_PROTOCOL_VERSION 17
 #define BP_DAEMON_PROTOCOL_VERSION 26
+#define BP_DEFAULT_DEVICE_TYPE "iPhone 8"
+#define BP_DEFAULT_RUNTIME "iOS 12.2"
 #define BP_DEFAULT_XCODE_VERSION "10.2"
 #define BP_MAX_PROCESSES_PERCENT 0.75
+#define BP_TEST_DUMPER_NAME "bp-test-dumper.dylib"
+#define BP_TM_PROTOCOL_VERSION 17
 
 
 extern NSString * const kCFBundleIdentifier;

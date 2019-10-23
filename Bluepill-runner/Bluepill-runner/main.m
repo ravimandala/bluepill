@@ -7,17 +7,19 @@
 //  distributed under the License is distributed on an "AS IS" BASIS,
 //  WITHOUT WARRANTIES OF ANY KIND, either express or implied.  See the License for the specific language governing permissions and limitations under the License.
 
-#import <Foundation/Foundation.h>
-#import "BPApp.h"
 #import <BluepillLib/BPConfiguration.h>
-#import "BPRunner.h"
-#import "BPVersion.h"
-#import "BPReportCollector.h"
-#import <BluepillLib/BPUtils.h>
+#import <BluepillLib/BPSimulator.h>
 #import <BluepillLib/BPStats.h>
+#import <BluepillLib/BPUtils.h>
 #import <BluepillLib/BPWriter.h>
+#import <BluepillLib/SimulatorHelper.h>
+#import <Foundation/Foundation.h>
 #import <getopt.h>
 #import <libgen.h>
+#import "BPApp.h"
+#import "BPReportCollector.h"
+#import "BPRunner.h"
+#import "BPVersion.h"
 
 #include <sys/ioctl.h>
 #include <string.h>

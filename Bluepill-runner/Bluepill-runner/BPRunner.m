@@ -7,26 +7,26 @@
 //  distributed under the License is distributed on an "AS IS" BASIS,
 //  WITHOUT WARRANTIES OF ANY KIND, either express or implied.  See the License for the specific language governing permissions and limitations under the License.
 
-#import "BPRunner.h"
-#import "BPPacker.h"
-#import <BluepillLib/BPUtils.h>
-#import "BPVersion.h"
-#include <sys/sysctl.h>
-#include <sys/types.h>
-#include <mach/mach.h>
-#include <mach/processor_info.h>
-#include <mach/mach_host.h>
-#include <signal.h>
-#include <pwd.h>
 #import <AppKit/AppKit.h>
-#import <BluepillLib/BPSimulator.h>
 #import <BluepillLib/BPCreateSimulatorHandler.h>
+#import <BluepillLib/BPSimulator.h>
+#import <BluepillLib/BPStats.h>
 #import <BluepillLib/BPUtils.h>
 #import <BluepillLib/BPWaitTimer.h>
 #import <BluepillLib/SimDeviceSet.h>
 #import <BluepillLib/SimServiceContext.h>
 #import <BluepillLib/SimulatorHelper.h>
-#import <BluepillLib/BPStats.h>
+#import "BPPacker.h"
+#import "BPRunner.h"
+#import "BPVersion.h"
+
+#include <mach/mach.h>
+#include <mach/mach_host.h>
+#include <mach/processor_info.h>
+#include <pwd.h>
+#include <signal.h>
+#include <sys/sysctl.h>
+#include <sys/types.h>
 
 static int volatile interrupted = 0;
 
@@ -62,34 +62,9 @@ maxprocs(void)
 + (instancetype)BPRunnerWithConfig:(BPConfiguration *)config
                         withBpPath:(NSString *)bpPath {
     BPRunner *runner = [[BPRunner alloc] init];
-    runner.testHostForSimUDID = [[NSMutableDictionary alloc] init];
+    runner.testHostSimTemplates = [[NSMutableDictionary alloc] init];
     runner.config = config;
-    // Find the `bp` binary.
-
-    if (bpPath) {
-        runner.bpExecutable = bpPath;
-    } else {
-        NSString *argv0 = [[[NSProcessInfo processInfo] arguments] objectAtIndex:0];
-        NSString *bp = [[argv0 stringByDeletingLastPathComponent] stringByAppendingPathComponent:@"bp"];
-        if (![[NSFileManager defaultManager] isExecutableFileAtPath:bp]) {
-            // Search the PATH for a bp executable
-            BOOL foundIt = false;
-            NSString *path = [[[NSProcessInfo processInfo] environment] objectForKey:@"PATH"];
-            for (NSString *dir in [path componentsSeparatedByString:@":"]) {
-                bp = [dir stringByAppendingPathComponent:@"bp"];
-                if ([[NSFileManager defaultManager] isExecutableFileAtPath:bp]) {
-                    foundIt = true;
-                    break;
-                }
-            }
-            if (!foundIt) {
-                fprintf(stderr, "ERROR: I couldn't find the `bp` executable anywhere.\n"
-                        "Please put it somewhere in your PATH. (Ideally next to `bluepill`.\n");
-                return nil;
-            }
-        }
-        runner.bpExecutable = bp;
-    }
+    runner.bpExecutable = bpPath ?: [BPUtils findExecutablePath:@"bp"];
     return runner;
 }
 
@@ -106,7 +81,7 @@ maxprocs(void)
     cfg.commandLineArguments = bundle.commandLineArguments;
     cfg.environmentVariables = bundle.environmentVariables;
     if (self.config.cloneSimulator) {
-        cfg.templateSimUDID = self.testHostForSimUDID[bundle.testHostPath];
+        cfg.templateSimUDID = self.testHostSimTemplates[bundle.testHostPath];
     }
     NSError *err;
     NSString *tmpFileName = [NSString stringWithFormat:@"%@/bluepill-%u-config",
@@ -166,11 +141,10 @@ maxprocs(void)
                                              NSWorkspaceLaunchAndHide;
     //launch Simulator.app without booting a simulator
     NSDictionary *configuration = @{NSWorkspaceLaunchConfigurationArguments:@[@"-StartLastDeviceOnLaunch",@"0"]};
-    NSRunningApplication *app = [[NSWorkspace sharedWorkspace]
-                                 launchApplicationAtURL:simulatorURL
-                                 options:launchOptions
-                                 configuration:configuration
-                                 error:errPtr];
+    NSRunningApplication *app = [[NSWorkspace sharedWorkspace] launchApplicationAtURL:simulatorURL
+                                                                              options:launchOptions
+                                                                        configuration:configuration
+                                                                                error:errPtr];
     if (!app) {
         [BPUtils printInfo:ERROR withString:@"Launch Simulator.app returned error: %@", [*errPtr localizedDescription]];
         return nil;
@@ -194,8 +168,6 @@ maxprocs(void)
     if (sigaction(SIGHUP, &new_action, NULL) != 0) {
         [BPUtils printInfo:ERROR withString:@"Could not install SIGHUP handler: %s", strerror(errno)];
     }
-
-    BPSimulator *bpSimulator = [BPSimulator simulatorWithConfiguration:self.config];
     NSUInteger numSims = [self.config.numSims intValue];
     [BPUtils printInfo:INFO withString:@"This is Bluepill %s", BP_VERSION];
     NSError *error;
@@ -208,12 +180,6 @@ maxprocs(void)
         [BPUtils printInfo:WARNING
                 withString:@"Lowering number of parallel simulators from %lu to %lu because there aren't enough tests.",
                             numSims, bundles.count];
-    }
-    if (self.config.cloneSimulator) {
-        self.testHostForSimUDID = [bpSimulator createSimulatorAndInstallAppWithBundles:xcTestFiles];
-        if ([self.testHostForSimUDID count] == 0) {
-            return 1;
-        }
     }
     [BPUtils printInfo:INFO withString:@"Running with %lu parallel simulator%s.",
      (unsigned long)numSims, (numSims > 1) ? "s" : ""];
@@ -321,6 +287,7 @@ maxprocs(void)
     [BPUtils printInfo:INFO withString:@"All BPs have finished."];
     if (self.config.cloneSimulator) {
         [BPUtils printInfo:INFO withString:@"Deleting template simulator.."];
+        BPSimulator *bpSimulator = [BPSimulator simulatorWithConfiguration:self.config];
         [bpSimulator deleteTemplateSimulator];
     }
     // Process the generated report and create 1 single junit xml file.
