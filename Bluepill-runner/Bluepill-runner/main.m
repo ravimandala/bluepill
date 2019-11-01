@@ -98,7 +98,7 @@ int main(int argc, char * argv[]) {
             exit(1);
         }
         [[BPStats sharedStats] endTimer:@"Loading App" withResult:@"INFO"];
-        // Always create simulator template(s)
+        // Always create simulator template(s) in order to read the tests
         // TODO: Deprecate clone-simulator flag
         NSDictionary *testHostSimTemplates = [SimulatorHelper createSimTemplatesAndDumpTests:app.testBundles withConfig:config];
         if (config.listTestsOnly) {

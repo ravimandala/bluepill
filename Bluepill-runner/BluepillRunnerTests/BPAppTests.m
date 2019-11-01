@@ -8,12 +8,14 @@
 //  WITHOUT WARRANTIES OF ANY KIND, either express or implied.  See the License for the specific language governing permissions and limitations under the License.
 
 #import <XCTest/XCTest.h>
+#import "BPApp.h"
+#import "BPTestHelper.h"
+
 #import <BluepillLib/BPConfiguration.h>
 #import <BluepillLib/BPXCTestFile.h>
 #import <BluepillLib/BPUtils.h>
 #import <BluepillLib/BPConstants.h>
-#import "BPApp.h"
-#import "BPTestHelper.h"
+#import <BluepillLib/SimulatorHelper.h>
 
 @interface BPAppTests : XCTestCase
 @property (nonatomic, strong) BPConfiguration* config;
@@ -30,6 +32,7 @@
     self.config.testBundlePath = testBundlePath;
     self.config.appBundlePath = hostApplicationPath;
     self.config.stuckTimeout = @20;
+    self.config.deviceType = @BP_DEFAULT_DEVICE_TYPE;
     self.config.xcodePath = [BPUtils runShell:@"/usr/bin/xcode-select -print-path"];
     self.config.runtime = @BP_DEFAULT_RUNTIME;
     self.config.repeatTestsCount = @1;
@@ -55,6 +58,8 @@
     BPApp *app = [BPApp appWithConfig:self.config withError:&error];
     XCTAssertNil(error);
     XCTAssert(app.testBundles.count == 1);
+
+    [SimulatorHelper createSimTemplatesAndDumpTests:app.testBundles withConfig:self.config];
     BPXCTestFile *testBundle = app.testBundles[0];
     XCTAssertEqualObjects(testBundle.testBundlePath, self.config.testBundlePath);
     XCTAssert([testBundle.allTestCases count] == 8);

@@ -17,9 +17,11 @@
 
 @implementation SimulatorHelper
 
-+ (NSDictionary *)createSimTemplatesAndDumpTests:(NSArray<BPXCTestFile *> *)xcTestFiles withConfig:(BPConfiguration *)config {
++ (NSDictionary *)createSimTemplatesAndDumpTests:(NSArray<BPXCTestFile *> *)xcTestFiles
+                                      withConfig:(BPConfiguration *)config {
     BPSimulator *bpSimulator = [BPSimulator simulatorWithConfiguration:config];
     NSDictionary *testHostSimTemplates = [bpSimulator createSimulatorAndInstallAppWithBundles:xcTestFiles];
+    // TODO: Replace this assert with proper error handling
     assert([testHostSimTemplates count] > 0);
     NSMutableDictionary *allTestCases = [[NSMutableDictionary alloc] init];
     for (NSString *appPath in testHostSimTemplates) {

@@ -7,14 +7,16 @@
 //
 
 #import <XCTest/XCTest.h>
-#import "BPTestHelper.h"
 #import <BluepillLib/BPConfiguration.h>
+#import <BluepillLib/BPConstants.h>
 #import <BluepillLib/BPUtils.h>
-#import "BPRunner.h"
+#import <BluepillLib/BPXCTestFile.h>
+#import <BluepillLib/SimulatorHelper.h>
+
 #import "BPApp.h"
 #import "BPPacker.h"
-#import <BluepillLib/BPXCTestFile.h>
-#import <BluepillLib/BPConstants.h>
+#import "BPRunner.h"
+#import "BPTestHelper.h"
 
 @interface BPIntegrationTests : XCTestCase
 @property (nonatomic, strong) BPConfiguration* config;
@@ -57,8 +59,11 @@
     BPApp *app = [BPApp appWithConfig:self.config
                             withError:&err];
 
+    NSDictionary *testHostSimTemplates = [SimulatorHelper createSimTemplatesAndDumpTests:app.testBundles withConfig:self.config];
     NSString *bpPath = [BPTestHelper bpExecutablePath];
-    BPRunner *runner = [BPRunner BPRunnerWithConfig:self.config withBpPath:bpPath];
+    BPRunner *runner = [BPRunner BPRunnerWithConfig:self.config
+                           withTestHostSimTemplates:testHostSimTemplates
+                                         withBpPath:bpPath];
     XCTAssert(runner != nil);
     int rc = [runner runWithBPXCTestFiles:app.testBundles];
     XCTAssert(rc == 0, @"Wanted 0, got %d", rc);
@@ -73,8 +78,11 @@
     BPApp *app = [BPApp appWithConfig:self.config
                             withError:&err];
 
+    NSDictionary *testHostSimTemplates = [SimulatorHelper createSimTemplatesAndDumpTests:app.testBundles withConfig:self.config];
     NSString *bpPath = [BPTestHelper bpExecutablePath];
-    BPRunner *runner = [BPRunner BPRunnerWithConfig:self.config withBpPath:bpPath];
+    BPRunner *runner = [BPRunner BPRunnerWithConfig:self.config
+                           withTestHostSimTemplates:testHostSimTemplates
+                                         withBpPath:bpPath];
     XCTAssert(runner != nil);
     int rc = [runner runWithBPXCTestFiles:app.testBundles];
     XCTAssert(rc == 0);
@@ -92,8 +100,11 @@
     BPApp *app = [BPApp appWithConfig:self.config
                             withError:&err];
 
+    NSDictionary *testHostSimTemplates = [SimulatorHelper createSimTemplatesAndDumpTests:app.testBundles withConfig:self.config];
     NSString *bpPath = [BPTestHelper bpExecutablePath];
-    BPRunner *runner = [BPRunner BPRunnerWithConfig:self.config withBpPath:bpPath];
+    BPRunner *runner = [BPRunner BPRunnerWithConfig:self.config
+                           withTestHostSimTemplates:testHostSimTemplates
+                                         withBpPath:bpPath];
     XCTAssert(runner != nil);
     int rc = [runner runWithBPXCTestFiles:app.testBundles];
     XCTAssert(rc == 0);
@@ -115,8 +126,11 @@
     BPApp *app = [BPApp appWithConfig:self.config
                             withError:&err];
 
+    NSDictionary *testHostSimTemplates = [SimulatorHelper createSimTemplatesAndDumpTests:app.testBundles withConfig:self.config];
     NSString *bpPath = [BPTestHelper bpExecutablePath];
-    BPRunner *runner = [BPRunner BPRunnerWithConfig:self.config withBpPath:bpPath];
+    BPRunner *runner = [BPRunner BPRunnerWithConfig:self.config
+                           withTestHostSimTemplates:testHostSimTemplates
+                                         withBpPath:bpPath];
     XCTAssert(runner != nil);
     int rc = [runner runWithBPXCTestFiles:app.testBundles];
     XCTAssert(rc == 0);
@@ -133,8 +147,12 @@
     NSError *err;
     [self.config validateConfigWithError:&err];
     BPApp *app = [BPApp appWithConfig:self.config withError:&err];
+
+    NSDictionary *testHostSimTemplates = [SimulatorHelper createSimTemplatesAndDumpTests:app.testBundles withConfig:self.config];
     NSString *bpPath = [BPTestHelper bpExecutablePath];
-    BPRunner *runner = [BPRunner BPRunnerWithConfig:self.config withBpPath:bpPath];
+    BPRunner *runner = [BPRunner BPRunnerWithConfig:self.config
+                           withTestHostSimTemplates:testHostSimTemplates
+                                         withBpPath:bpPath];
     XCTAssert(runner != nil);
     int rc = [runner runWithBPXCTestFiles:app.testBundles];
     XCTAssert(app.testBundles[1].skipTestIdentifiers.count == 8);
@@ -147,8 +165,12 @@
     NSError *err;
     BPApp *app = [BPApp appWithConfig:self.config
                             withError:&err];
+
+    NSDictionary *testHostSimTemplates = [SimulatorHelper createSimTemplatesAndDumpTests:app.testBundles withConfig:self.config];
     NSString *bpPath = [BPTestHelper bpExecutablePath];
-    BPRunner *runner = [BPRunner BPRunnerWithConfig:self.config withBpPath:bpPath];
+    BPRunner *runner = [BPRunner BPRunnerWithConfig:self.config
+                           withTestHostSimTemplates:testHostSimTemplates
+                                         withBpPath:bpPath];
     XCTAssert(runner != nil);
     int rc = [runner runWithBPXCTestFiles:app.testBundles];
     XCTAssert(rc != 0);

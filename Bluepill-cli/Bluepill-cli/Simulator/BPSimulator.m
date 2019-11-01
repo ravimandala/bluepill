@@ -40,6 +40,7 @@
     return sim;
 }
 
+// TODO: Rename the method or break the calling method
 - (NSMutableDictionary *)createSimulatorAndInstallAppWithBundles:(NSArray<BPXCTestFile *>*)testBundles {
     NSMutableDictionary* testHostSimTemplates = [[NSMutableDictionary alloc] init];
     NSString *simulatorUDIDString = nil;

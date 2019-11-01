@@ -65,7 +65,6 @@
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       stopOnEveryUBSanitizerIssue = "YES"
-      migratedStopOnEveryIssue = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
       <BuildableProductRunnable
@@ -78,6 +77,28 @@
             ReferencedContainer = "container:bluepill.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <CommandLineArguments>
+         <CommandLineArgument
+            argument = "--xctestrun-path=/Users/rmandala/Documents/git/li-bluepill_trunk/build/bluepill/Build/Products/BPSampleApp_iphonesimulator12.2-x86_64.xctestrun"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--list-tests"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--verbose"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--config=/Users/rmandala/Documents/git/voyager-ios_diamond/scripts/bluepill/config.json"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--output-dir=/Users/rmandala/Documents/git/voyager-ios_diamond/build/output/test_artifacts/xml"
+            isEnabled = "YES">
+         </CommandLineArgument>
+      </CommandLineArguments>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
