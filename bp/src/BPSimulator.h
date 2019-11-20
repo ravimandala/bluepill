@@ -54,7 +54,7 @@
  The number of template simulators is equal to the number of test hosts
  @return a dictionary with key to be the host bundle path and value to be the template simulator
  */
-- (NSMutableDictionary*)createSimulatorAndInstallAppWithBundles:(NSArray<BPXCTestFile *>*)testBundles withSimTemplate:(NSString *)simTemplate;
+- (NSMutableDictionary*)createSimulatorAndInstallAppWithBundles:(NSArray<BPXCTestFile *>*)testBundles;
 
 - (void)deleteTemplateSimulator;
 

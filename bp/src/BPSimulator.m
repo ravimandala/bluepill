@@ -31,7 +31,6 @@
 @property (nonatomic, strong) NSMutableDictionary* testHostSimTemplates;
 @property (nonatomic, strong) NSMutableDictionary* simDevices;
 
-
 @end
 
 @implementation BPSimulator
@@ -44,7 +43,7 @@
     return sim;
 }
 
-- (NSMutableDictionary *)createSimulatorAndInstallAppWithBundles:(NSArray<BPXCTestFile *>*)testBundles withSimTemplate:(NSString *)simTemplateUDID {
+- (NSMutableDictionary *)createSimulatorAndInstallAppWithBundles:(NSArray<BPXCTestFile *>*)testBundles {
     NSError *error = nil;
     NSString *simulatorUDIDString = nil;
     SimServiceContext *sc = [SimServiceContext sharedServiceContextForDeveloperDir:self.config.xcodePath error:&error];
@@ -58,15 +57,10 @@
         return nil;
     }
     if (self.config.appBundlePath) {
-        // This is for integration testing for bp and bluepill when we assign self.config.appBundlePath
+        // This is for integration testing for bluepill and bluepill-cli when we assign self.config.appBundlePath
         SimDevice *simDevice = nil;
-        if (simTemplateUDID) {
-            simulatorUDIDString = simTemplateUDID;
-            simDevice = self.simDevices[simulatorUDIDString];
-        } else {
-            simDevice = [self createSimTemplateWithDeviceSet:deviceSet errPtr:&error];
-            self.simDevices[simDevice.UDID.UUIDString] = simDevice;
-        }
+        simDevice = [self createSimTemplateWithDeviceSet:deviceSet errPtr:&error];
+        self.simDevices[simDevice.UDID.UUIDString] = simDevice;
         if (!simDevice || error) {
             [BPUtils printInfo:ERROR withString:@"Create of simulator with error: %@", error];
             return nil;

@@ -36,29 +36,17 @@
     config.deviceType = @BP_DEFAULT_DEVICE_TYPE;
     config.headlessMode = YES;
     config.quiet = [BPUtils isBuildScript];
+    [config validateConfigWithError:nil];
+    // Fill in simDeviceType and simRuntime with defaults
+    [config fillSimDeviceTypeAndRuntimeWithError:nil];
     return config;
 }
 
 - (void)setUp {
     [super setUp];
     // Put setup code here. This method is called before the invocation of each test method in the class.
-    NSString *hostApplicationPath = [BPTestHelper sampleAppPath];
-    NSString *testBundlePath = [BPTestHelper sampleAppBalancingTestsBundlePath];
-    self.config = [[BPConfiguration alloc] initWithProgram:BP_MASTER];
-    self.config.testBundlePath = testBundlePath;
-    self.config.appBundlePath = hostApplicationPath;
-    self.config.stuckTimeout = @80;
-    self.config.xcodePath = [BPUtils runShell:@"/usr/bin/xcode-select -print-path"];
-    self.config.repeatTestsCount = @1;
-    self.config.errorRetriesCount = @0;
-    self.config.failureTolerance = @0;
-    self.config.headlessMode = YES;
     [BPUtils enableDebugOutput:![BPUtils isBuildScript]];
     [BPUtils quietMode:[BPUtils isBuildScript]];
-    self.config.quiet = [BPUtils isBuildScript];
-    [self.config validateConfigWithError:nil];
-    // Fill in simDeviceType and simRuntime with defaults
-    [self.config fillSimDeviceTypeAndRuntimeWithError:nil];
 }
 
 - (void)tearDown {
@@ -70,7 +58,7 @@
     BPConfiguration *config = [self generateConfig];
     config.numSims = @1;
     NSError *err;
-    BPApp *app = [BPApp appWithConfig:self.config withError:&err];
+    BPApp *app = [BPApp appWithConfig:config withError:&err];
     NSString *bpPath = [BPTestHelper bpExecutablePath];
     BPRunner *runner = [BPRunner BPRunnerWithConfig:config withBpPath:bpPath];
     XCTAssert(runner != nil);
@@ -85,7 +73,7 @@
     config.errorRetriesCount = @1;
     config.failureTolerance = @0;
     NSError *err;
-    BPApp *app = [BPApp appWithConfig:self.config withError:&err];
+    BPApp *app = [BPApp appWithConfig:config withError:&err];
     NSString *bpPath = [BPTestHelper bpExecutablePath];
     BPRunner *runner = [BPRunner BPRunnerWithConfig:config withBpPath:bpPath];
     XCTAssert(runner != nil);
@@ -107,10 +95,19 @@
     BPApp *app = [BPApp appWithConfig:config withError:&err];
     NSString *bpPath = [BPTestHelper bpExecutablePath];
 
-    // Testing that the sim templates get created
+    // Testing whether the sim templates get created irrespective of cloneSimulator config.
+    config.cloneSimulator = TRUE;
     runner = [BPRunner BPRunnerWithConfig:config withBpPath:bpPath];
     XCTAssert(runner != nil);
     int rc = [runner runWithBPXCTestFiles:app.testBundles];
+    XCTAssert([runner.testHostSimTemplates count] > 0);
+    XCTAssert(rc == 0);
+    XCTAssert([runner.nsTaskList count] == 0);
+
+    config.cloneSimulator = FALSE;
+    runner = [BPRunner BPRunnerWithConfig:config withBpPath:bpPath];
+    XCTAssert(runner != nil);
+    rc = [runner runWithBPXCTestFiles:app.testBundles];
     XCTAssert([runner.testHostSimTemplates count] > 0);
     XCTAssert(rc == 0);
     XCTAssert([runner.nsTaskList count] == 0);

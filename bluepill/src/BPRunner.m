@@ -180,7 +180,7 @@ maxprocs(void)
         [BPUtils printInfo:ERROR withString:@"Could not install SIGHUP handler: %s", strerror(errno)];
     }
     BPSimulator *bpSimulator = [BPSimulator simulatorWithConfiguration:self.config];
-    self.testHostSimTemplates = [bpSimulator createSimulatorAndInstallAppWithBundles:xcTestFiles withSimTemplate:nil];
+    self.testHostSimTemplates = [bpSimulator createSimulatorAndInstallAppWithBundles:xcTestFiles];
     if ([self.testHostSimTemplates count] == 0) {
         [BPUtils printInfo:ERROR withString:@"Failed to create simulator template(s)"];
         return 1;
