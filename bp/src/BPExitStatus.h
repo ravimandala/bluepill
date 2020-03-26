@@ -13,15 +13,15 @@ typedef NS_ENUM(NSInteger, BPExitStatus) {
     BPExitStatusTestsAllPassed = 0,
     BPExitStatusTestsFailed = 1,
     BPExitStatusSimulatorCreationFailed = 2,
-    BPExitStatusSimulatorCrashed = 3,
     BPExitStatusInstallAppFailed = 4,
-    BPExitStatusLaunchAppFailed = 5,
-    BPExitStatusTestTimeout = 6,
-    BPExitStatusAppCrashed = 7,
     BPExitStatusInterrupted = 8,
-    BPExitStatusSimulatorDeleted = 9,
-    BPExitStatusUninstallAppFailed = 10,
-    BPExitStatusSimulatorReuseFailed = 11,
+    BPExitStatusSimulatorCrashed = 16,
+    BPExitStatusLaunchAppFailed = 32,
+    BPExitStatusTestTimeout = 64,
+    BPExitStatusAppCrashed = 128,
+    BPExitStatusSimulatorDeleted = 256,
+    BPExitStatusUninstallAppFailed = 512,
+    BPExitStatusSimulatorReuseFailed = 1024,
 };
 
 @protocol BPExitStatusProtocol <NSObject>

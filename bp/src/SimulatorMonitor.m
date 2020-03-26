@@ -205,6 +205,8 @@
                                 forTestName:(self.currentTestName ?: self.previousTestName)
                                     inClass:(self.currentClassName ?: self.previousClassName)];
             self.exitStatus = BPExitStatusAppCrashed;
+            // Do not retry the test on app crash
+            [self updateExecutedTestCaseList:testName inClass:testClass];
             [[BPStats sharedStats] addApplicationCrash];
         }
     }
