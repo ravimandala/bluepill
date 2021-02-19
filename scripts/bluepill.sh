@@ -53,21 +53,26 @@ bluepill_build()
           exit 1
   }
   set +o pipefail
-  # package bluepill
-  TAG=$(git describe --always --tags)
+  #### Original packaging of bluepill
+  # TAG=$(git describe --always --tags)
+  # ROOT="build"
+
+  # Custom packaging of bluepill
+  TAG="custom"
+  ROOT=".."
   DST="Bluepill-$TAG"
-  mkdir -p "build/$DST/bin"
-  cp build/Build/Products/Release/{bp,bluepill} "build/$DST/bin"
+  mkdir -p "$ROOT/$DST/bin"
+  cp build/Build/Products/Release/{bp,bluepill} "$ROOT/$DST/bin"
   ## build the man page
-  mkdir -p "build/$DST/man/man1"
-  /usr/bin/python scripts/man.py "build/$DST/man/man1/bluepill.1"
+  mkdir -p "$ROOT/$DST/man/man1"
+  /usr/bin/python scripts/man.py "$ROOT/$DST/man/man1/bluepill.1"
   # License
-  cp LICENSE "build/$DST"
+  cp LICENSE "$ROOT/$DST"
   # bptestrunner
-  cp bptestrunner/* "build/$DST"
+  cp bptestrunner/* "$ROOT/$DST"
 
   (cd build && zip -qr "$DST.zip" "$DST")
-  echo Release in "build/$DST.zip"
+  echo Release in "ROOT/$DST.zip"
 }
 
 bluepill_build_sample_app()
