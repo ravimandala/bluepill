@@ -49,7 +49,7 @@ static BOOL quiet = NO;
 
 + (void)enableDebugOutput:(BOOL)enable {
     printDebugInfo = enable;
-    NSLog(@"Debug Enabled == %hhd", printDebugInfo);
+    NSLog(@"Custom Bluepill: Debug Enabled == %hhd", printDebugInfo);
 }
 
 + (void)quietMode:(BOOL)enable {

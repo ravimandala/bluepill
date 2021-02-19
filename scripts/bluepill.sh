@@ -71,8 +71,8 @@ bluepill_build()
   # bptestrunner
   cp bptestrunner/* "$ROOT/$DST"
 
-  (cd build && zip -qr "$DST.zip" "$DST")
-  echo Release in "ROOT/$DST.zip"
+  (cd "$ROOT" && zip -qr "$DST.zip" "$DST")
+  echo Release in "$ROOT/$DST.zip"
 }
 
 bluepill_build_sample_app()

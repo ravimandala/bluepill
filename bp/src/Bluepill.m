@@ -502,6 +502,12 @@ static void onInterrupt(int ignore) {
         [context.parser cleanup];
     }
 
+    // If the tests failed, save as much debugging info as we can. XXX: Put this behind a flag
+    if (context.runner.exitStatus != BPExitStatusAllTestsPassed && _config.saveDiagnosticsOnError) {
+      [BPUtils printInfo:INFO withString:@"Saving Diagnostics for Debugging"];
+      [BPUtils saveDebuggingDiagnostics:_config.outputDirectory];
+    }
+
     if (context.simulatorCrashed) {
         // If we crashed, we need to retry
         [self deleteSimulatorWithContext:context andStatus:BPExitStatusSimulatorCrashed];
@@ -511,12 +517,6 @@ static void onInterrupt(int ignore) {
       context.exitStatus = [context.runner exitStatus];
       NEXT([self finishWithContext:context]);
     } else {
-      // If the tests failed, save as much debugging info as we can. XXX: Put this behind a flag
-      if (context.runner.exitStatus != BPExitStatusAllTestsPassed && _config.saveDiagnosticsOnError) {
-        [BPUtils printInfo:INFO withString:@"Saving Diagnostics for Debugging"];
-        [BPUtils saveDebuggingDiagnostics:_config.outputDirectory];
-      }
-      
       [self deleteSimulatorWithContext:context andStatus:[context.runner exitStatus]];
     }
 }
